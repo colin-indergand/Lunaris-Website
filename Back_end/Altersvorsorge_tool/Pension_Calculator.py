@@ -4,13 +4,9 @@
 #####################################################################################################################################################
 
 #Alle Bibliotheken importieren
-from app import return_vintage
 import copy
 
 #Aufbereitung der Web-Daten
-
-web_vintage_data = return_vintage()
-
 
 #MSCI-World Rendite jährlich über die letzten 25y
 
@@ -116,12 +112,16 @@ def calculate_vintage(web_vintage_data):
 
 #Einkommen pro Altersklassen
 
-def calculate_income():
+def calculate_income(web_income_data):
+    income_data = web_income_data
     #Falls es kein Input in einigen Jahren gibt, wird es mit Einkommen = 0 CHF aufgefüllt.
     filled_data = []
     if income_data:
         current_age = min(block["start_age"] for block in income_data)
-        vermögen = input("Was ist Ihr Vermögen während der Zeit als nicht erwerbstätige Person\n")
+        if income_data and isinstance(income_data[-1], dict):
+            vermögen = income_data[-1].get("vermögen", 0)
+        else:
+            vermögen = 0
         for block in sorted(income_data, key=lambda x: x["start_age"]):
             if block["start_age"] > current_age:
                 filled_data.append({
@@ -221,27 +221,20 @@ total_contrib_years = 44
 
 #Beitragsjahre berechnen
 
-def calculate_contrib_years():
-    try:
-        contrib_gap_years = int(input("Haben Sie Beitragslücken? Keine AHV-Beiträge bezahlt? <Geben Sie die Anzahl Jahre ein(Bspw. 2)\n"))
-    except ValueError:
-        return total_contrib_years
-    
+def calculate_contrib_years(income_data, web_contrib_gap_years_data, web_contrib_gap_data):
+
+    contrib_gap_years = web_contrib_gap_years_data
+
     contrib_years = total_contrib_years - contrib_gap_years
 
     contrib_gap = []
-    if contrib_gap_years >= 1:
-        while True:
-            start_y_gap = input("Ab welchem Alter war diese Beitragslücken?\n").lower().strip()
-            if start_y_gap == "stop":
-                break
-            start_y_gap = int(start_y_gap)
-            end_y_gap = int(input("Bis zu welchem Jahr\n"))
+    start_y_gap = web_contrib_gap_data["start_age"]
+    end_y_gap = web_contrib_gap_data["end_age"]
 
-            contrib_gap.append({
-                "start_year_gap": start_y_gap,
-                "end_year_gap": end_y_gap
-            })
+    contrib_gap.append({
+        "start_year_gap": start_y_gap,
+        "end_year_gap": end_y_gap
+    })
 
     pre_contrib_data = copy.deepcopy(income_data)    
 
@@ -388,7 +381,7 @@ def calculate_yearly_status(contrib_data):
 
 #Erziehungsgutschriften
 
-def calculate_childcare_credits(yearly_status_data, contrib_years):
+def calculate_childcare_credits(yearly_status_data, contrib_years, vintage):
     childcare_credits = 0
     has_children = input("Haben Sie Kinder (ja/nein)\n").strip().lower()
     if has_children != "ja":
@@ -1150,7 +1143,7 @@ def final_portfolio_annual(savings_rate, years_savings_data, annual_return, inco
     return portfolio
     
 #Sparrate für nötiges Portfolio mit verschiedenen Renditen
-def required_savings_rate(target_portfolio, annual_return, years_savings_data, tol=1e-3, max_iter=100):
+def required_savings_rate(target_portfolio, annual_return, income_data, years_savings_data, tol=1e-3, max_iter=100):
     target_portfolio = target_portfolio
     low, high = 0.0, 1.0  # Mögliche Sparquote zwischen 0% und 100%
     
@@ -1198,7 +1191,15 @@ adjusted_ahv_income = calculate_aufwertungsfaktor(combined_income, vintage) #Auf
 childcare_data = calculate_childcare_credits(yearly_status_data, contrib_years) #Berechnung Erziehungsgutschriften
 childcare_credit_income = childcare_data.get("childcare_credits_yearly", 0) #Gesamtbetrag pro Jahr für Erziehungsgutschriften 
 betreuungsgutschriften_income = calculate_betreuungsgutschriften(childcare_data, contrib_years) #Betreuungsgutschriften berechnen
-ahv_income = adjusted_ahv_income + childcare_credit_income + betreuungsgutschriften_income #Einkommen mit allen Zusätzen
+
+def calculate_total_ahv_income(adjusted_ahv_income, childcare_credit_income, betreuungsgutschriften_income):
+    ahv_income = adjusted_ahv_income + childcare_credit_income + betreuungsgutschriften_income
+    return ahv_income
+
+ahv_income = calculate_total_ahv_income(adjusted_ahv_income, childcare_credit_income, betreuungsgutschriften_income)
+
+#Einkommen mit allen Zusätzen
+
 pre_ahv_pension = calculate_pension(ahv_income, contrib_years) #Pension von Einkommen persönlich
 ahv_pension = calculate_plafonierte_pension(pre_ahv_pension, contrib_data) #Plafonierte Rente bei verheirateten
 ahv_contrib = calculate_ahv_contrib(contrib_data, data_min_yearly_contrib, self_employed_contrib, employee_contrib, employer_contrib, contrib_years) #AHV Beiträge 
@@ -1242,10 +1243,22 @@ inflation_msci_saving_rate_p = final_portfolio_annual(inflation_msci_saving_rate
 inflation_bank_saving_rate_s = required_savings_rate(necessary_pension["necessary_portfolio"], avg_saving_yield_incl_infl, years_s, tol=1e-3, max_iter=100) #Bankzins sparrate minus Inflation - Saving_rate
 inflation_bank_saving_rate_p = final_portfolio_annual(inflation_msci_saving_rate_s, years_s, avg_saving_yield_incl_infl, income_data) #Bankzins minus Inflation nötiges Portfoliowert
 
-capital_inflation_msci_saving_rate_s = capital_inflation_msci_saving_rate_s *100
-capital_inflation_bank_saving_rate_s = capital_inflation_bank_saving_rate_s *100
-inflation_msci_saving_rate_s = inflation_msci_saving_rate_s *100
-inflation_bank_saving_rate_s = inflation_bank_saving_rate_s *100
+def calculate_saving_rates(capital_inflation_msci_saving_rate_s, capital_inflation_bank_saving_rate_s, inflation_msci_saving_rate_s, inflation_bank_saving_rate_s):
+    capital_inflation_msci_saving_rate_s = capital_inflation_msci_saving_rate_s *100
+    capital_inflation_bank_saving_rate_s = capital_inflation_bank_saving_rate_s *100
+    inflation_msci_saving_rate_s = inflation_msci_saving_rate_s *100
+    inflation_bank_saving_rate_s = inflation_bank_saving_rate_s *100
+
+    saving_rate_data = {
+        "capital_inflation_msci_saving_rate": capital_inflation_msci_saving_rate_s,
+        "capital_inflation_bank_saving_rate_s": capital_inflation_bank_saving_rate_s,
+        "inflation_msci_saving_rate_s": inflation_msci_saving_rate_s,
+        "inflation_bank_saving_rate_s": inflation_bank_saving_rate_s
+    }
+
+    return saving_rate_data
+
+saving_rate_data = calculate_saving_rates(capital_inflation_msci_saving_rate_s, capital_inflation_bank_saving_rate_s, inflation_msci_saving_rate_s, inflation_bank_saving_rate_s)
 
 pension_1_2_pension = pension_1_2["pension_total"] #Rente gesamt bei Rentenbezug
 pension_1_2_capital = pension_1_2["pension_bvg_capital_total"] #Rente gesamt bei Kapitalbezug
@@ -1287,3 +1300,4 @@ print(f"Nötige Sparrate bei MSCI-World Rendite mit Inflation, bei einem Kapital
 print(f"Nötige Sparrate bei Sparkonto Zinsen mit Inflation, bei einer Kapitalbezug aus der PK: {capital_inflation_bank_saving_rate_s:.2f}")
 print(f"Nötige Sparrate bei MSCI-World Rendite ohne Inflation, bei einem Rentenbezug aus der PK: {inflation_msci_saving_rate_s:.2f} %")
 print(f"Nötige Sparrate bei Sparkonto Zinsen ohne Inflation, bei einer Rentenbezug aus der PK: {inflation_bank_saving_rate_s:.2f}")
+

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <link rel="stylesheet" href="styles.css">
+
     <meta name="viewport" content="width=devide-width, initial-scale=1.0">
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <title>Lunaris-Global</title>
 </head>
 <body>
@@ -30,16 +31,42 @@
 
         <div class="language-switcher">
             <button class="lang-btn">
-                DE<span class="arrow-down"></span>
+                DE <span class="arrow-down"></span>
              </button>
         </div>
     </header>
 
     <!-- HAUPTTEIL DER STARTSEITE -->
 
-    <main>
-        <h1>Willkommen</h1>
-    </main>
 
+    <div class="kachel-wrapper">
+
+    <div class="info-icon" onclick="toggleInfoPopup(this)">i</div>
+    <div class="info-popup">
+        <p><strong>Erklärung:</strong> Bei der Kernspaltung wird ein Atomkern in zwei leichtere Kerne zerlegt. Dabei wird Energie frei.</p>
+    </div>
+
+    <div class="kachel" id="card1">
+        <div class="kachel-header">Kernspaltung</div>
+
+        <div class="kachel-fulltext">
+        <p>
+            Einführung zur Kernspaltung: Kernspaltung ist ein physikalischer Prozess, bei dem schwere Atomkerne wie Uran-235
+            oder Plutonium-239 in zwei kleinere Kerne aufgeteilt werden. Dabei entstehen auch Neutronen und große
+            Energiemengen. Dieser Prozess wird in Kernkraftwerken kontrolliert eingesetzt, um elektrische Energie zu
+            erzeugen. Bei unkontrollierter Kettenreaktion – wie bei einer Atombombe – entsteht eine enorme Druckwelle und
+            Hitze. In der Forschung wird untersucht, wie man Spaltung sicherer gestalten kann. Der gesellschaftliche Diskurs
+            über Risiken, Nutzen und Endlagerung ist weiterhin stark präsent.
+        </p>
+        </div>
+
+        <div class="kachel-footer" onclick="toggleCardContent('card1')">
+        <span class="arrow">&#9660;</span>
+        </div>
+    </div>
+    </div>
+
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

@@ -1,0 +1,139 @@
+:root {
+  --deep-anthracite: #1f1f1f;
+  --dark-bg: #111;
+  --white: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Calibri, sans-serif;
+}
+
+body {
+  background-color: var(--dark-bg);
+  color: var(--white);
+  display: flex;
+  justify-content: center;
+  padding: 4rem 1rem;
+}
+
+main {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Titel mit mehr Abstand */
+#contact-title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--white);
+  margin-bottom: 4rem;
+  text-align: center;
+}
+
+/* Standort */
+
+#location-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 3rem 0;
+  width: 100%;
+  max-width: 1000px;
+  gap: 2rem;
+}
+
+#globeViz {
+  flex: 1;
+  height: 400px;
+  min-width: 300px;
+}
+
+#infoBox {
+  flex: 1;
+  padding: 2rem;
+  background-color: var(--deep-anthracite);
+  border: 2px solid var(--white);
+  border-radius: 15px;
+  display: none; /* wird beim Klick eingeblendet */
+  color: var(--white);
+}
+
+#infoBox h2 {
+  margin-top: 0;
+}
+
+#infoBox p {
+  line-height: 1.6;
+}
+
+
+
+/* Rahmen um Eingabeformular */ 
+#contact {
+    border: 1px solid var(--white);
+    border-radius: 15px;
+}
+
+/* Abstand + Struktur */
+#contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 0.6rem;
+}
+
+input,
+textarea {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--white);
+  color: var(--white);
+  padding: 0.8rem 0.5rem;
+  font-size: 1rem;
+  width: 100%;
+  margin-top: 0.2rem;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 150px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #ccc;
+}
+
+/* Button ohne Hintergrund, größer, zentriert */
+#send-contact {
+  margin-top: 3rem;
+  padding: 1rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: 2px solid var(--white);
+  color: var(--white);
+  background: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#send-contact:hover {
+  color: var(--dark-bg);
+  background-color: var(--white);
+}

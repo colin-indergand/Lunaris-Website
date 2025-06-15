@@ -132,24 +132,23 @@ function removeYearlyStatus() {
 // Childcare Credits: Kinder Jahrgang hinzufügen
 function createChildcareVintage(selectElement) {
   const count = parseInt(selectElement.value);
-  const container = document.getElementById('childcare_credits_data');
+  const container = document.getElementById('child_year_block');
   const template = document.querySelector('.child-template');
 
-  const existingEntries = container.querySelectorAll('.childcare-entry');
+  container.querySelectorAll('.childcare-entry').forEach(e => e.remove());
 
-  while (existingEntries.length > count) {
-    container.removeChild(existingEntries[existingEntries.length - 1]); 
-  }
-
-  const startIndex = existingEntries.length;
-  for (let i = startIndex; i < count; i++) {
+  for (let i = 0; i < count; i++) {
     const clone = template.content.cloneNode(true);
+    const entry = clone.querySelector('.childcare-entry');
     const label = clone.querySelector('label');
+    const dropdown = clone.querySelector('.vintage-children');
+
+    if (entry) entry.style.display = 'block';
+
     if (label) {
-          label.textContent = `Geburtsjahr des ${i + 1}. Kindes`;
+      label.textContent = `Geburtsjahr des ${i + 1}. Kindes`;
     }
 
-    const dropdown = clone.querySelector('.vintage-children');
     if (dropdown) {
       createDropdown(dropdown, 1900, 2025);
     }
@@ -159,69 +158,71 @@ function createChildcareVintage(selectElement) {
 }
 
 // Childcare Credits: Zeilen einblenden
-function toggleChildcareCredits(selectElement) {
-  const entry = selectElement.closest('#childcare_credit');
 
-  const label_1 = entry.querySelector('.num-children-childcare-credits');
-  const label_2 = entry.querySelector('#amount_children_childcare_credits');
+function toggleChildcareCredits(selectElement) {  
+  const block = document.getElementById('childcare_credits_data');
+  const label_1 = block.querySelector('#children_count_block');
+  const label_2 = block.querySelector('#child_year_block');
 
   const show = selectElement.value === 'Ja';
 
-  label_1.style.display = show ? 'inline' : 'none';
-  label_2.style.display = show ? 'inline' : 'none';
+  label_1.style.display = show ? 'block' : 'none';
+  label_2.style.display = show ? 'block' : 'none';
+
+  const erziehungsBlock = document.getElementById('block_erziehunsgberechtigt');
+  if (erziehungsBlock) erziehungsBlock.style.display = show ? 'block' : 'none';
+  
+  const dropdown = block.querySelector('.select-num-children-childcare-credits');
+  const oldValue = dropdown.value
 
   if (show) {
-    createDropdown('amount_children_childcare_credits', 0, 50);
+    createDropdown(dropdown, 1, 50);
+    if (oldValue && dropdown.querySelector(`option[value="${oldValue}"]`)) {
+      dropdown.value = oldValue;    
+    }
   }
 }
 
 //ERZIEHUNGSBERECHTIGUNG
 
-// Erziehunsgberechtigt:y Für Anzahl Kinder erstellen
 function createChildcareResponsibilityTemplates(selectElement) {
   const count = parseInt(selectElement.value);
-  const container = document.getElementById('block_erziehungsberechtigt'); 
-  const template = document.querySelector('.erziehungsberechtigt-template'); 
+  const container = document.getElementById('block_erziehunsgberechtigt');
+  const template = document.querySelector('.erziehungsberechtigt-template');
 
   container.querySelectorAll('.erziehungsberechtigt-template-wrapper').forEach(e => e.remove());
 
-  for (let i=0; i < count; i++) {
+  for (let i = 0; i < count; i++) {
     const clone = template.content.cloneNode(true);
+    const toggler = clone.querySelector('.is-erziehungsberechtigt');
 
-    const label = clone.querySelector('.is-erziehungsberechtigt');
+    const label = clone.querySelector('label');
     if (label) {
-      label.textContent = `Durchgehend Erziehungsberechtigt für ${i + 1}. Kind:`;
+      label.textContent = `Durchgehend Erziehungsberechtigt für ${i + 1}. Kind`;
     }
+    
+    if (toggler) {
+      toggler.value = "Ja";
 
-    const selStart = clone.querySelector('.select-erziehungsberechtigt-start-age');
-    const selEnd   = clone.querySelector('.select-erziehungsberechtigt-end-age');
-    if (selStart && selEnd) {
-      createDropdown(selStart, 1900, new Date().getFullYear());
-      createDropdown(selEnd,   1900, new Date().getFullYear());
+      toggler.addEventListener('change', function() {
+        toggleErziehungsberechtigt(this);
+        toggleErziehungsberechtigtBeide(this);
+      })
+
+      toggleErziehungsberechtigt(toggler);
+      toggleErziehungsberechtigtBeide(toggler);
     }
-
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('erziehungsberechtigt-template-wrapper');
-    wrapper.appendChild(clone);
-
-    container.appendChild(wrapper);
-  }
-
-    container.querySelectorAll('.is-erziehungsberechtigt').forEach(sel => {
-    sel.addEventListener('change', () => toggleErziehungsberechtigt(sel));
-    // Initial ausführen
-    toggleErziehungsberechtigt(sel);
-  });
+  
+    container.appendChild(clone);
+  } 
 }
-
 
 // Erziehungsberechtigt: Einzelne Zeilen einblenden
 function toggleErziehungsberechtigt(selectElement) {
   const block = selectElement.closest('.erziehungsberechtigt-template-wrapper');
-  const container = block.querySelector('.erziehungsberechtigt-standard');
+  const container = block.querySelector('.duration-erziehunsgberechtigt-standard');
   const add_button = block.querySelector('.erziehungsberechtigt-add-button');
   const remove_button = block.querySelector('.erziehungsberechtigt-remove-button');
-
 
   const show = selectElement.value === 'Nein';
 
@@ -231,6 +232,11 @@ function toggleErziehungsberechtigt(selectElement) {
 
   const Dropdown_start = block.querySelector('.select-erziehungsberechtigt-start-age');
   const Dropdown_end = block.querySelector('.select-erziehungsberechtigt-end-age');
+
+  const tempEntries = block.querySelectorAll('.erziehungsberechtigt-standard-temp');
+  tempEntries.forEach(entry => {
+    entry.style.display = show ? 'block' : 'none';
+  });
 
   if (show) {
     createDropdown(Dropdown_start, 1, 100);
@@ -245,13 +251,16 @@ function toggleErziehungsberechtigtBeide(selectElement) {
 
   const show = selectElement.value === 'Ja';
 
-  container.style.display = show ? 'block' : 'none';
+
+  if (container) {
+    container.style.display = show ? 'block' : 'none';
+  }
 }
 
 // Erziehunsgberechtigt: Einzelne Zeilen hinzufügen
 function addErziehungsberechtigt(buttonElement) {
   const wrapper = buttonElement.closest('.erziehungsberechtigt-template-wrapper');
-  const container = wrapper.querySelector('.erziehungsberechtigt-dynamic-container');
+  const container = wrapper.querySelector('.erziehungsberechtigt-standard');
   const template = wrapper.querySelector('.erziehungsberechtigt-standard-template');
   
   const cloneWrapper = document.createElement('div');
@@ -267,14 +276,13 @@ function addErziehungsberechtigt(buttonElement) {
 
   cloneWrapper.appendChild(clone);
   container.appendChild(cloneWrapper);
-
 }
 
 // Erziehunsgberechtigt: Einzelne Zeilen entfernen
 
 function removeErziehungsberechtigt(buttonElement) {
   const wrapper = buttonElement.closest('.erziehungsberechtigt-template-wrapper');
-  const container = wrapper.querySelector('.erziehungsberechtigt-dynamic-container');
+  const container = wrapper.querySelector('.erziehungsberechtigt-standard');
   const tempEntries = container.querySelectorAll('.erziehungsberechtigt-standard-temp');
  
   if (tempEntries.length > 0) {
@@ -572,4 +580,12 @@ window.addEventListener('DOMContentLoaded', () => {
   bvgSelbstDropdowns.forEach(dropdown => {
     toggleBvgcontribselbständig(dropdown);
   });
+});
+
+// Resultate anzeigen lassen
+window.addEventListener("DOMContentLoaded", () => {
+  const resultsExist = document.getElementById("results_section");
+  if (resultsExist && resultsExist.innerHTML.trim() !== "") {
+  resultsExist.style.display = "block";
+  }
 });

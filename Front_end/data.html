@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schweizer-Altersvorsorge-System</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>Lunaris-Rententool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/data.css') }}">
 </head>
 <body>
     <h1>Rententool:</h1>
     <br>
 
     <!-- RENTENTOOL INPUT FORMULAR-->
-    <form method="POST" action="/calculate">
+    <form method="POST" action="/pension_calculator">
 
         <div id="vintage">
             <h4>Jahrgang:</h4>
@@ -52,6 +52,7 @@
     
                     <label for="select_income_end_age">Bis Alter:</label>
                     <select name="return-income-end-age[]" id="select_income_end_age"  class="income_end_age" ></select>
+
                     <label for="select_income_income">Einkommen:</label>
                     <input name="return-income-income[]" type="number" id="select_income_income" class="income_income" placeholder="CHF">
     
@@ -80,7 +81,7 @@
 
             <div class="contrib-gap-entry">
                 <label for="contrib_gap_total_years">Wie viele Jahre Beitragslücken hatten Sie?</label>
-                <select name="return-contrib-gaps" id="contrib_gap_total_years" class="select-contrib-gap-total-years" onchange="toggleContribData(this)"></select>
+                <select name="return-contrib-gap-years" id="contrib_gap_total_years" class="select-contrib-gap-total-years" onchange="toggleContribData(this)"></select>
             </div>
 
             <div id="contrib_gap_period_container">
@@ -145,18 +146,25 @@
 
         <div id="childcare_credits_data">
             <h4>Erziehungsgutschriften:</h4>
+
             <div id="childcare_credit">
                 <label for="has_children" class="has_children">Haben Sie Kinder?</label>
                 <select name="return-has-children" id="has_children" class="has-children" onchange="toggleChildcareCredits(this)">
                     <option value="Nein">Nein</option>
                     <option value="Ja">Ja</option>
                 </select>
+            </div>
 
-                <label for="amount_children_childcare_credits" id="num_children" class="num-children-childcare-credits" style="display: none;">Anzahl Kinder</label>
-                <select name="return-amount-children-childcare-credits" class="select-num-children-childcare-credits" id="amount_children_childcare_credits" style="display: none;" onchange="createChildcareVintage(this); createChildcareResponsibilityTemplates(this)"></select>         
-                
+            <div class="childcare-credits" id=children_count_block style="display: none;">
+                <label for="amount_children_childcare_credits" class="num-children-childcare-credits">Anzahl Kinder</label>
+                <select name="return-amount-children-childcare-credits" class="select-num-children-childcare-credits" id="amount_children_childcare_credits" onchange="createChildcareVintage(this); createChildcareResponsibilityTemplates(this)"></select>         
+            </div>
+
+            <br>
+
+            <div id="child_year_block" style="display: none;">
                 <template class="child-template">
-                    <div class="childcare-entry" style="display: none;">
+                    <div class="childcare-entry" >
                         <label></label>
                         <select name="return-vintage-children[]" class="vintage-children"></select><br>
                     </div>
@@ -169,7 +177,7 @@
 
                         <div class="search-erziehungsberechtigt">
                             <label class="is-erziehungsberechtigt"></label>
-                            <select name="return-is-erziehungsberechtigt[]" class="is-erziehungsberechtigt" onchange="toggleErziehungsberechtigtBeide(this); toggleErziehungsberechtigt(this)">
+                            <select name="return-is-erziehungsberechtigt[]" class="is-erziehungsberechtigt" onchange=" toggleErziehungsberechtigt(this); toggleErziehungsberechtigtBeide(this)">
                                 <option value="Ja">Ja</option>
                                 <option value="Nein">Nein</option>
                             </select>
@@ -183,24 +191,22 @@
                             </select>
                         </div>
 
-                        <div class="erziehungsberechtigt-standard" style="display: none;">
-                            <div class="erziehungsberechtigt-dynamic-container"></div>
-                                <div class="duration-erziehunsgberechtigt-standard">
-                                    <label class="erziehungsberechtigt-start-age">Von Jahr:</label>
-                                    <select name="return-erziehungsberechtigt-start-age[]" class="select-erziehungsberechtigt-start-age"></select>
+                        <div class="erziehungsberechtigt-standard">
+                            <div class="duration-erziehunsgberechtigt-standard" style="display: none;">
+                                <label class="erziehungsberechtigt-start-age">Von Jahr:</label>
+                                <select name="return-erziehungsberechtigt-start-age[]" class="select-erziehungsberechtigt-start-age"></select>
 
-                                    <label class="erziehungsberechtigt-end-age">Bis Jahr:</slabel>
-                                    <select name="return-erziehungsberechtigt-end-age[]" class="select-erziehungsberechtigt-end-age"></select>
+                                <label class="erziehungsberechtigt-end-age">Bis Jahr:</slabel>
+                                <select name="return-erziehungsberechtigt-end-age[]" class="select-erziehungsberechtigt-end-age"></select>
 
-                                    <label class="container-erziehungsberechtigt-status">Status:</label>
-                                    <select name="return-erziehunsberechtigt-status[]" class="select-container-erziehungsberechtigt-status">
-                                        <option value="Gemeinsam">Gemeinsam</option>
-                                        <option value="Alleine">Alleine</option>
-                                        <option value="Nicht erziehungsberechtigt">Nicht erziehungsberechtigt</option>
-                                    </select>
-                                </div>
+                                <label class="container-erziehungsberechtigt-status">Status:</label>
+                                <select name="return-erziehunsberechtigt-status[]" class="select-container-erziehungsberechtigt-status">
+                                    <option value="Gemeinsam">Gemeinsam</option>
+                                    <option value="Alleine">Alleine</option>
+                                    <option value="Nicht erziehungsberechtigt">Nicht erziehungsberechtigt</option>
+                                </select>
                             </div>
-
+                           
                             <template class="erziehungsberechtigt-standard-template">
                                 <div class="erziehunsgberechtigt-standard-temp">
                                     <label class="erziehungsberechtigt-start-age-temp">Von Jahr:</label>
@@ -217,10 +223,9 @@
                                     </select>
                                 </div>
                             </template>
-
-                            <button type="button" class="erziehungsberechtigt-add-button" style="display: none;" onclick="addErziehungsberechtigt(this)">Hinzufügen</button>
-                            <button type="button" class="erziehungsberechtigt-remove-button" style="display: none;" onclick="removeErziehungsberechtigt(this)">Entfernen</button>
                         </div>
+                        <button type="button" class="erziehungsberechtigt-add-button" style="display: none;" onclick="addErziehungsberechtigt(this)">Hinzufügen</button>
+                        <button type="button" class="erziehungsberechtigt-remove-button" style="display: none;" onclick="removeErziehungsberechtigt(this)">Entfernen</button>
                     </div>
                 </template>
             </div>
@@ -326,8 +331,6 @@
                         <select name="return-bvg-contrib-selbständig-start-age[]" id="bvg_contrib_selbständig_start_age" class="select-bvg-contrib-selbständig-start-age"></select>
 
                         <label class="bvg-contrib-selbständig-end-age">Bis Jahr:</label>
-
-                        
                         <select name="return-bvg-contrib-selbständig-end-age[]" id="bvg_contrib_selbständig_end_age" class="select-bvg-contrib-selbständig-end-age"></select>
 
                         <label class="bvg-contrib-selbständig-min-vers-income">Was war Ihr minimal versichertes Einkommen:</label>
@@ -461,13 +464,34 @@
 
         <br>
         <button type="submit">Berechnen</button>
+        <button type="reset">Zurücksetzen</button>
     </form>
 
     <!-- OUTPUT VON PYTHON SKRIPT (RENTE AHV, BVG, 3. Säule Daten, Sparraten)-->
+    {% if results %}
+        <div id="results_section" style="display: none;">
+            <h1>Ergebnisse:</h1>
+            <ul>
+                <li>Jahrgang: {{ results["Jahrgang"] }}</li>
+                <li>Durchschnittliches Einkommen: {{ results["Average Income"] }}</li>
+                <li>Einkommen-Daten:
+                    <ul>
+                        {% for eintrag in results["Income"] %}
+                            <li>
+                                Start: {{ eintrag.start_age }}, Ende: {{ eintrag.end_ae }}, Einkommen: {{ eintrag.income }}, Status: {{ eintrag.status }}, Vermögen: {{ eintrag.vermögen }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
 
-    <h1>Ergebnis</h1>
-    <p>Berechnetets Ergebnis: {{print_vintage}}</p>
 
-<script src="js/scripts.js"></script>
+<!--
+<script src="js/data.js"></script>
+-->
+
+<script src="{{ url_for('static', filename='js/data.js') }}"></script>
 </body>
 </html>

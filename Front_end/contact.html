@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="DE">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunaris-Contact</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/contact.css') }}">
+</head>
+
+<body>
+    <main>           
+        <h1 id="contact-title">Lunaris-Kontakt</h1>
+
+        <div id="location-wrapper">
+        <div id="infoBox">
+            <h2>Standort: Zürich</h2>
+            <p>
+            xxx<br>
+            xxx Zürich<br>
+            Schweiz<br><br>
+            <strong>E-Mail:</strong><br>
+            contact@lunaris.global
+            </p>
+        </div>
+        <div id="globeViz"></div>
+        </div>
+
+        <form id="contact">
+            <div class="form-row">
+                <label for="contact_firstname">Vorname:</label>
+                <input id="contact_firstname" placeholder="Max" required/>
+            </div>
+
+            <div class="form-row">
+                <label for="contact_surname">Nachname:</label>
+                <input id="contact_surname" placeholder="Mustermann" required/>
+            </div>
+
+        
+            <div class="form-row">
+                <label for="contact_email">E-Mail:</label>
+                <input id="contact_email" placeholder="max.mustermann@xxxx.com" required/>
+            </div>
+
+            <div class="form-row">
+                <label for="contact_tel">Telefon-Nr.</label>
+                <input id="contact_tel" placeholder="+41 xx xxx xx xx"/>
+            </div>
+
+            <div class="form-row-full-width">
+                <label for="contact_message">Nachricht:</label>
+                <textarea id="contact_message" placeholder="Ihre Nachricht:"></textarea>
+            </div>
+
+            <button type="submit" id="send_contact">Absenden</button>
+        </form>
+    
+    </main>
+<script src="https://unpkg.com/three"></script>
+<script src="https://unpkg.com/globe.gl"></script>
+<script src="{{ url_for('static', filename='js/contact.js') }}"></script>
+</body>
+</html>
