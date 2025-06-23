@@ -1,0 +1,69 @@
+{% if results %}
+<h1>Ergebnisse:</h1>
+
+<h3>Allgemeine Daten:</h3>
+<ul>
+    <li>Durchschnittlicher Sparzins: {{results["basic_data_returns"]["average_saving_yield"]  }}</li>
+    <li>Durchschnittliche Inflation (Schweiz): {{results["basic_data_returns"]["average_inflation_swiss"] }}</li>
+    <li>Durchschnittliche MSCI-World (15 Jahre) Rendite: {{results["basic_data_returns"]["average_msci_return_15y"] }}</li>
+    <li>Durchschnittliche MSCI-World (25 Jahre) Rendite: {{results["basic_data_returns"]["average_msci_return_25y"] }}</li>
+    <li>Durchschnittliche MSCI-World (15y & 25y) Rendite: {{results["basic_data_returns"]["average_msci_return"] }}</li>
+    <li>Durchschnittliche MSCI-World  inkl. Inflation Rendite: {{results["basic_data_returns"]["average_msci_yield_inflation_included"] }}</li>
+    <li>Durchschnittlicher Sparzins inkl. Inflation: {{results["basic_data_returns"]["average_saving_yield_inflation_included"] }}</li>
+    <br>
+    <li>Jahrgang: {{ results["vintage"] }}</li>
+    <li>Durchschnittliches Einkommen: {{ results["average_income"] }}</li>
+</ul>
+
+<h3>AHV-Daten:</h3>
+<ul>
+    <li>Beitragsjahre: {{results["ahv_data"]["amount_contrib_years"] }}</li>
+    <li>AHV-Einkommen (alleine): {{results["ahv_data"]["ahv_income"] }}</li>
+    <li>AHV-Einkommen (inkl. Partner): {{results["ahv_data"]["average_combined_income"] }}</li>
+    <li>AHV-Rente: {{results["ahv_data"]["ahv_pension"] }}</li>
+    <li>AHV-Beiträge: {{results["ahv_data"]["ahv_contrib"] }}</li>
+    <li>AHV-Deckungsgrad: {{results["ahv_data"]["ahv_deckungsgrad"] }}</li>
+</ul>
+
+<h3>BVG-Daten:</h3>
+<ul>
+    <li>BVG Einkommen: {{results["bvg_data"]["bvg_income"] }}</li>
+    <li>BVG Beiträge: {{results["bvg_data"]["bvg_contrib"] }}</li>
+    <li>BVG Kapital: {{results["bvg_data"]["bvg_capital"] }}</li>
+    <li>BVG Deckungsgrad: {{results["bvg_data"]["bvg_deckungsgrad"] }}</li>
+    <li>BVG Rente monatlich (Rentenbezug): {{results["bvg_data"]["bvg_pension_monthly"] }}</li>
+    <li>BVG Rente monatlich (Kapitalbezug): {{results["bvg_data"]["bvg_pension_monthly_capital"] }}</li>
+    <li>BVG Gesamtauszahlung bei Kapitalbezug: {{results["bvg_data"]["bvg_pension_capital"] }}</li>
+    <li>BVG Gesamtauszahlung bei Rentenbezug: {{results["bvg_data"]["bvg_pension_total"] }}</li>
+</ul>
+
+<h3>Gesamt Übersicht:</h3>
+<ul>
+    <li>Letztes Einkommen (monatlich): {{results["private_savings"]["last_income"] }}</li>
+    <li>1. und 2. Säule Rente (Rentenbezug): {{results["private_savings"]["total_pension"] }}</li>
+    <li>1. und 2. Säule Rente (Kapitalbezug): {{results["private_savings"]["total_pension_capital"] }}</li>
+    <li>Prozent von letztem Einkommen: {{results["private_savings"]["percentage_last_income"] }}</li>
+    <li>Portfoliowert 3. Säule für 100% des letzten Einkommens: {{results["private_savings"]["portfolio_value_100"] }}</li>
+    <li>Anzahl Jahre zum Investieren: {{results["private_savings"]["saving_years"] }}</li>
+</ul>
+
+<h3>Sparraten:</h3>
+<ul>
+    <li>Sparrate (Sparzins inkl. Inflation - Kapitalbezug) : {{results["saving_rates"]["100_capital_inflation_bank_saving_rate"] }}</li>
+    <li>Sparrate (MSCI-World inkl. Inflation - Kapitalbezug): {{results["saving_rates"]["100_capital_inflation_msci_saving_rate"] }}</li>
+    <li>Sparrate (MSCI-World inkl. Infltaion): {{results["saving_rates"]["100_inflation_msci_saving_rate"] }}</li>
+    <li>Sparrate (Sparzins inkl. Inflation): {{results["saving_rates"]["100_inflation_bank_saving_rate"] }}</li>
+    <li>Sparrate (MSCI-World ohne Inflation): {{results["saving_rates"]["100_msci_saving_rate"] }}</li>
+</ul>
+
+{% if results.get("wanted_pension") %}
+<h3>Sparraten bei gewünschter monatlicher Rente:</h3>
+<ul>
+    <li>Sparrate: {{results["wanted_pension"]["wanted_capital_inflation_bank_saving_rate"] }}</li>
+    <li>Sparrate : {{results["wanted_pension"]["wanted_capital_inflation_bank_saving_rate"] }}</li>
+    <li>: {{results["wanted_pension"]["wanted_inflation_msci_saving_rate"] }}</li>
+    <li>: {{results["wanted_pension"]["wanted_inflation_bank_saving_rate+g_rate"] }}</li>
+    <li>: {{results["wanted_pension"]["wanted_capital_msci_saving_rate"] }}</li>
+</ul>
+{% endif %}
+{% endif %}

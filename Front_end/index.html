@@ -1,72 +1,196 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-
     <meta name="viewport" content="width=devide-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <title>Lunaris-Global</title>
 </head>
 <body>
-    <header>
-        <!-- Logo und Name -->
-        <div class="logo">
-            <img src="logo.png" alt="Lunaris Logo">
-            <h2>Lunaris-Global</h2>
-        </div>
 
-        <!-- Navigationsleiste -->
-        <nav class="main-nav">
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">Über uns & Partner</a></li>
-                <li><a href="education.html">Lunaris Education</a></li>
-                <li><a href="news.html">News & Blog</a></li>
-                <li><a href="data.html">Lunaris Daten</a></li>
-                <li><a href="contact.html">Kontakt</a></li>
-            </ul>
-        </nav>
+ <header class="main-header">
+    <a href="main" class="logo-link">
+      <img src="{{ url_for('static', filename='images/lunaris_schriftzug_weiss.png') }}" alt="Lunaris Global" class="logo-image" />
+    </a>
 
-         <!-- Sprache auswählen -->
+    <nav class="main-nav" id="nav">
+        <a href="{{ url_for('index') }}">Lunaris</a>
+        <a href="{{ url_for('about') }}">Über uns</a>
+        <a href="{{ url_for('education') }}">Education</a>
+        <a href="{{ url_for('news') }}">News</a>
+        <a href="{{ url_for('altersvorsorge') }}">Altersvorsorge</a>
+        <a href="{{ url_for('contact') }}">Kontakt</a>
+    </nav>
 
-        <div class="language-switcher">
-            <button class="lang-btn">
-                DE <span class="arrow-down"></span>
-             </button>
-        </div>
-    </header>
+    <div class="header-right">
+      <select class="lang-select" onchange="switchLanguage(this)">
+        <option value="/de/index.html" selected>DE</option>
+        <option value="/en/index.html">EN</option>
+      </select>
+      <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
+    </div>
+  </header>
 
-    <!-- HAUPTTEIL DER STARTSEITE -->
+  <div class="mobile-menu-overlay" id="mobileMenu">
+    <div class="mobile-menu-header">
+      <select class="lang-select">
+        <option value="/de/index.html" selected>DE</option>
+        <option value="/en/index.html">EN</option>
+      </select>
+      <button class="close-btn" onclick="toggleMobileMenu()">&times;</button>
+    </div>
+    <nav class="mobile-nav">
+      <a href="#">Lunaris</a>
+      <a href="#">Über uns</a>
+      <a href="#">Education</a>
+      <a href="#">Daten</a>
+      <a href="#">Kontakt</a>
+    </nav>
+  </div>
 
+  <main class="layout-alt">
+    <section class="hero">
+      <h1>Lunaris-Global</h1>
+      <p>Stability in spending - trust in technology</p>
+    </section>
 
-    <div class="kachel-wrapper">
-
-    <div class="info-icon" onclick="toggleInfoPopup(this)">i</div>
-    <div class="info-popup">
-        <p><strong>Erklärung:</strong> Bei der Kernspaltung wird ein Atomkern in zwei leichtere Kerne zerlegt. Dabei wird Energie frei.</p>
+    <div class="info-box box-left">
+      <h2>Was ist Lunaris?</h2>
+      <ul>
+        <li><strong>Drei Hauptkomponenten:</strong> Inflationsschutz, Zahlungen, Blockchain</li>
+        <li><strong>Aufklappbare Erklärungen</strong> für technische und wirtschaftliche Aspekte</li>
+        <li><strong>Lunaris Pay:</strong> Schnelle Zahlungen, automatisch umgerechnet</li>
+      </ul>
     </div>
 
-    <div class="kachel" id="card1">
-        <div class="kachel-header">Kernspaltung</div>
-
-        <div class="kachel-fulltext">
-        <p>
-            Einführung zur Kernspaltung: Kernspaltung ist ein physikalischer Prozess, bei dem schwere Atomkerne wie Uran-235
-            oder Plutonium-239 in zwei kleinere Kerne aufgeteilt werden. Dabei entstehen auch Neutronen und große
-            Energiemengen. Dieser Prozess wird in Kernkraftwerken kontrolliert eingesetzt, um elektrische Energie zu
-            erzeugen. Bei unkontrollierter Kettenreaktion – wie bei einer Atombombe – entsteht eine enorme Druckwelle und
-            Hitze. In der Forschung wird untersucht, wie man Spaltung sicherer gestalten kann. Der gesellschaftliche Diskurs
-            über Risiken, Nutzen und Endlagerung ist weiterhin stark präsent.
-        </p>
-        </div>
-
-        <div class="kachel-footer" onclick="toggleCardContent('card1')">
-        <span class="arrow">&#9660;</span>
-        </div>
-    </div>
+    <div class="info-box box-right">
+      <h2>Problemlösung</h2>
+      <p>Inflation, Rentenlücke und Finanzunsicherheit belasten die Mittelschicht weltweit.
+      Lunaris bietet Schutz vor Kaufkraftverlust – ohne Spekulation.</p>
     </div>
 
+    <div class="info-box box-left">
+      <h2>Warum Lunaris?</h2>
+      <ul>
+        <li>✓ Inflationsschutz</li>
+        <li>✓ Globale Nutzung & dezentrale Architektur</li>
+        <li>✓ Zukunftsfähigkeit & hohe Effizienz</li>
+      </ul>
+    </div>
 
+    <div class="info-box box-right">
+      <h2>Vision & Zukunft</h2>
+      <ul>
+        <li>🌍 Globale Expansion</li>
+        <li>🧠 Technologische Innovation</li>
+        <li>🏦 Partnerschaften mit Banken & Finanzdienstleistern</li>
+      </ul>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- Neue Datenkacheln: Key Metrics -->
+    <div class="data-grid">
+      <div class="data-box">
+        <h3>🌐 Weltweite Nutzerkonten</h3>
+        <p><strong>123'456+</strong></p>
+      </div>
+      <div class="data-box">
+        <h3>💰 Lunaris-Marktkapitalisierung</h3>
+        <p><strong>$7'453'125'124</strong></p>
+      </div>
+      <div class="data-box">
+        <h3>🔄 Transaktionen Total</h3>
+        <p><strong>12'345'678'000</strong></p>
+      </div>
+      <div class="data-box">
+        <h3>⚡ Transaktionen pro Sekunde</h3>
+        <p><strong>12'320 TPS</strong></p>
+      </div>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- Neue freie Blog-Sektion -->
+    <section class="blog-preview">
+      <h2>Aktuelle News</h2>
+      <div class="blog-grid">
+        <div class="blog-card">
+          <h3>Titel 1</h3>
+          <p>Kurze Beschreibung zum Artikel... (Platzhalter)</p>
+        </div>
+        <div class="blog-card">
+          <h3>Titel 2</h3>
+          <p>Kurze Beschreibung zum Artikel... (Platzhalter)</p>
+        </div>
+        <div class="blog-card">
+          <h3>Titel 3</h3>
+          <p>Kurze Beschreibung zum Artikel... (Platzhalter)</p>
+        </div>
+      </div>
+    </section>
+
+
+    <hr class="section-divider" />
+
+    <!-- Weltkarte -->
+    <div class="map-section">
+      <h2 class="map-title">Lunaris-Aktivität</h2>
+      <div class="map-container">
+        <div id="mapdiv"></div>
+
+        <div id="countryInfoPanel" class="info-panel hidden">
+          <h3 id="countryName">Länderdaten</h3>
+          <ul>
+            <li><strong>Einwohner:</strong> <span id="pop">-</span></li>
+            <li><strong>Jährliche Inflationsrate:</strong> <span id="inflation">-</span></li>
+            <li><strong>BIP:</strong> <span id="gdp">-</span></li>
+            <li><strong>Lunaris-Konten:</strong> <span id="users">-</span></li>
+            <li><strong>Lunaris-Volumen:</strong> <span id="volume">-</span></li>
+            <li><strong>Anzahl Partner:</strong> <span id="partners">-</span></li>
+            <li><strong>Lunaris Integration::</strong> <span id="penetration">-</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-left">
+      <img src="{{ url_for('static', filename='images/lunaris_logo_schwarz.png') }}" alt="Lunaris Logo" class="footer-logo"/>
+      <div class="social-icons">
+        <a href="#">X</a>
+        <a href="#">IG</a>
+        <a href="#">TT</a>
+        <a href="#">MAIL</a>
+      </div>
+    </div>
+
+    <div class="footer-center">
+      <div class="footer-title">LUNARIS GLOBAL</div>
+      <div class="footer-sub">stability in spending, trust in technology</div>
+    </div>
+
+    <div class="footer-right">
+      <div class="footer-links-col">
+        <a href="#">AGB</a>
+        <a href="#">Impressum</a>
+      </div>
+      <div class="footer-links-col">
+        <a href="#">Datenschutz</a>
+        <a href="#">Nutzungsbedingungen</a>
+      </div>
+    </div>
+  </footer>
+
+
+<!-- AmCharts Bibliotheken -->
+<script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/lang/de_DE.js"></script>
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
 </body>
 </html>

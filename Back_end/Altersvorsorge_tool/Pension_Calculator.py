@@ -108,13 +108,14 @@ pension_time = avg_lifespan - pension_age +1
 
 def calculate_vintage(web_vintage_data):
     vintage = web_vintage_data
+    if vintage == None:
+        return 0
     return vintage
 
 #Einkommen pro Altersklassen
 
 def calculate_income(web_income_data):
     income_data = web_income_data
-    #Falls es kein Input in einigen Jahren gibt, wird es mit Einkommen = 0 CHF aufgefüllt.
     filled_data = []
     if income_data:
         current_age = min(block["start_age"] for block in income_data)
@@ -136,7 +137,6 @@ def calculate_income(web_income_data):
 
     income_data = filled_data
 
-    #Auffüllen, falls letztes Einkommensjahr < 65 Jahren mit letzten Eintrag bis 65 zur Pension
     if income_data:
         last_block = income_data[-1]
         last_age = last_block["end_age"]
@@ -149,7 +149,15 @@ def calculate_income(web_income_data):
                 "vermögen": last_block["vermögen"]
             })
 
-    print(f"\nEINKOMMENSDATEN: {income_data}")
+    if not income_data:
+        income_data = [{
+            "start_age": 0,
+            "end_age": 0,
+            "income": 0,
+            "status": None,
+            "vermögen": 0
+        }]
+        
     return income_data
 
 
@@ -170,6 +178,9 @@ def average_income(income_data):
         avg_income = 0
 
     avg_income = total_income / years
+
+    if avg_income == None:
+        return 0
 
     return avg_income
 
@@ -228,8 +239,8 @@ def calculate_contrib_years(income_data, web_contrib_gap_years_data, web_contrib
     contrib_years = total_contrib_years - contrib_gap_years
 
     contrib_gap = []
-    start_y_gap = web_contrib_gap_data["start_age"]
-    end_y_gap = web_contrib_gap_data["end_age"]
+    start_y_gap = web_contrib_gap_data[0]["start_age"]
+    end_y_gap = web_contrib_gap_data[0]["end_age"]
 
     contrib_gap.append({
         "start_year_gap": start_y_gap,
@@ -239,8 +250,8 @@ def calculate_contrib_years(income_data, web_contrib_gap_years_data, web_contrib
     pre_contrib_data = copy.deepcopy(income_data)    
 
     gap_years = []
-    for i in contrib_gap:
-        gap_years += list(range(i["start_year_gap"], i["end_year_gap"] +1))
+    for g in contrib_gap:
+        gap_years += list(range(g["start_year_gap"], g["end_year_gap"] +1))
     
     contrib_data = []
     for block in pre_contrib_data:
@@ -253,8 +264,19 @@ def calculate_contrib_years(income_data, web_contrib_gap_years_data, web_contrib
                 "status": block["status"],
                 "vermögen": block["vermögen"]
             })
-
-    print(f"\nBEITRAGSJAHRE: {contrib_data}, {contrib_years}")
+    
+    if not contrib_data:
+        contrib_data = []
+        contrib_data.append({
+            "start_age": 0,
+            "income": 0,
+            "status": None,
+            "vermögen": 0
+        })
+    
+    if contrib_years == None:
+        return 0
+    
     return contrib_data, contrib_years
 
 #Durchschn. Einkommen pro Beitragsjahr
@@ -268,17 +290,16 @@ def calculate_ahv_income(contrib_data, min_age, max_age):
             total_income += i["income"]
             total_years += 1
 
-    if total_years == 0:
+    if total_years == None:
         return 0
     else:
-        average_income = total_income / total_years
-        print(f"\nAHV AHV Income: {average_income}")
-    
-    return average_income
+        avg_ahv_income = total_income / total_years
+        
+    return avg_ahv_income
 
 #Beiträge Berechnen
 
-def calculate_ahv_contrib(contrib_data, data_min_yearly_contrib, self_employed_contrib, employee_contrib, employer_contrib, contrib_years):
+def calculate_ahv_contrib(contrib_data, data_min_yearly_contrib, self_employed_contrib, employee_contrib, employer_contrib):
     contrib = []
 
     for i in contrib_data:
@@ -330,29 +351,24 @@ def calculate_ahv_contrib(contrib_data, data_min_yearly_contrib, self_employed_c
         "total_employer_contrib": total_employer_contrib
     }]
 
-    print(f"\nAHV BEITRÄGE: {total_contrib_data}")
+    if not contrib:
+        total_contrib_data =[{
+            "total_contrib": 0,
+            "total_pers_contrib": 0,
+            "total_employer_contrib": 0
+        }]
+
     return total_contrib_data
 
 #Beziehungsstatus für Erz. / Plafonierung
 
-def calculate_yearly_status(contrib_data):
+def calculate_yearly_status(contrib_data, web_yearly_status_data):
     yearly_status_data = []
 
-    while True:
-        i_start_year = input("Ab welchem Alter galt dieses Einkommen?\n").strip().lower()
-        if i_start_year == "stop":
-            break
-        i_start_year = int(i_start_year)
-
-        i_end_year = input("Bis zu welchem Alter galt dieses Einkommen?\n").strip().lower()
-        if i_end_year == "stop":
-            break
-        i_end_year = int(i_end_year)
-
-        marriage_income = input("Was war das Einkommen Ihrer Partnerin. - mit 'stop' können sie\n").strip().lower()
-        if marriage_income == "stop":
-            break
-        marriage_income = int(marriage_income)
+    for i in web_yearly_status_data:
+        i_start_year = web_yearly_status_data[0]["start_age"]
+        i_end_year = web_yearly_status_data[0]["end_age"]
+        marriage_income = web_yearly_status_data[0]["income"]
 
         for year in range(i_start_year, i_end_year +1):
             yearly_status_data.append({
@@ -375,182 +391,176 @@ def calculate_yearly_status(contrib_data):
                     "year": year,
                     "marriage_income": last_entry["marriage_income"]
                 })
-        
-        print(f"\nVERHEIRATET: {yearly_status_data}")
-        return yearly_status_data
+    
+    if not yearly_status_data:
+        yearly_status_data.append({
+            "year": 0,
+            "marriage_income": 0
+        })
+
+    return yearly_status_data
 
 #Erziehungsgutschriften
 
-def calculate_childcare_credits(yearly_status_data, contrib_years, vintage):
+def calculate_childcare_credits(pre_childcare_credits, contrib_years, contrib_data, vintage, web_childcare_credits_has_childcren_data, web_childcare_credits_amount_children_data, web_childcare_credits_erziehungsberechtigt_data, web_childcare_credits_erziehungsberechtigt_children_data):
     childcare_credits = 0
-    has_children = input("Haben Sie Kinder (ja/nein)\n").strip().lower()
+
+    has_children = web_childcare_credits_has_childcren_data
     if has_children != "ja":
         return {
             "childcare_credits": 0,
             "childcare_credits_duration": 0,
             "start_year": None,
-            "end_year": None
-        }
-    try:
-        num_children = int(input("Wie viele Kinder haben Sie\n"))
-    except ValueError:
-        print("Ungültige Eingabe - Bitte geben Sie eine Zahl ein.")
-        return {
-            "childcare_credits": 0,
-            "childcare_credits_duration": 0,
-            "start_year": None,
-            "end_year": None
+            "end_year": None,
+            "childcare_credits_yearly": 0,
+            "valid_childcare_years": []
         }
 
-    vintage_children = []
-    for i in range(num_children):
-        try:
-            jahrgang = int(input(f"Geben Sie den Jahrgang des {i+1}. Kindes ein. (z.B. 2012)\n"))
-            vintage_children.append(jahrgang)
-        except ValueError:
-            print("Ungültiger Jahrgang - Bitte eine Zahl eingeben")
-            return {
-                "childcare_credits": 0,
-                "childcare_credits_duration": 0,
-                "start_year": None,
-                "end_year": None
-            }
-        
-    if not vintage_children:
-        return {
-            "childcare_credits": 0,
-            "childcare_credits_duration": 0,
-            "start_year": None,
-            "end_year": None
-        }
-       
-    age_difference = abs(max(vintage_children) - min(vintage_children)) +1
-    childcare_credits_duration = age_difference +16
-    start_children = min(vintage_children)
-    end_childcare_year = start_children + childcare_credits_duration
 
-    m_start_children = start_children - vintage
-    m_end_childcare = end_childcare_year - vintage
+    num_children = web_childcare_credits_amount_children_data
 
-    yearly_status_data = yearly_status_data or []
+    childcare_credit_data = []
 
-    full_status = []
-    for year in range(m_start_children, m_end_childcare +1):
-        status = "single"
-        for m in yearly_status_data:
-            if m["year"] == year:
-                status = "married"
-                break
-        full_status.append((year, status))
+    for i in web_childcare_credits_erziehungsberechtigt_data:
+        child = i["child"]
+        vintage_children = i["vintage"]
+        erziehungsberechtigt = i["erziehungsberechtigt"]
+        status = i["status"]
 
-    stages = []
-    if full_status:
-        prev_status = full_status[0][1]
-        start = full_status[0][0]
+        start_y = vintage_children 
+        end_y = start_y + 16
 
-        for idx in range(1, len(full_status)):
-            year, status = full_status[idx]
-            if status != prev_status:
-                stages.append({
-                    "start": start,
-                    "end": full_status[idx-1][0],
-                    "status": prev_status
+        if erziehungsberechtigt == "Ja":
+            for year in range(start_y, end_y +1):
+                if year not in contrib_data:
+                    contrib_y = 0
+                if status == "Gemeinsam":
+                    contrib_y = pre_childcare_credits *0.5
+                else:
+                    contrib_y = pre_childcare_credits *1.0
+
+                childcare_credit_data.append({
+                    "child": i,
+                    "vintage": vintage,
+                    "year": year,
+                    "contrib": contrib_y,
+                    "status": status                    
                 })
-                start = year
-                prev_status = status
 
-        stages.append({
-            "start": start,
-            "end": full_status[-1][0],
-            "status": prev_status
+        else:
+            for x in web_childcare_credits_erziehungsberechtigt_children_data:
+                child = x["child"]
+                start_year = x["start_age"]
+                end_year = x["end_age"]
+                status_yearly = x["status"]
+                
+                if child == i:
+                    for year in range(start_y, end_y +1):
+                        if year not in contrib_data:
+                            contrib = 0
+                        
+                        if start_year <= year >= end_year:
+                            if status_yearly == "Gemeinsam":
+                                contrib_y = pre_childcare_credits *0.5
+                            elif status_yearly == "Alleine":
+                                contrib_y = pre_childcare_credits *1.0
+                            else:
+                                contrib_y = 0
+                        else:
+                            continue
+
+                        childcare_credit_data.append({
+                            "child": i,
+                            "vintage": vintage,
+                            "year": year,
+                            "contrib": contrib_y,
+                            "status": status_yearly
+                        })
+                        
+                else:
+                    continue
+    
+    minimum_credit_y = min(vintage_children)
+    maximum_credit_y = max(vintage_children) +16
+
+    max_contrib_per_year = []
+
+    for year in range(minimum_credit_y, maximum_credit_y +1):
+        contrib = [i["contrib"] for i in childcare_credit_data if i["year"] == year]
+        contrib_per_year = max(contrib) if contrib else 0.0
+
+        max_contrib_per_year.append({
+            "year": year,
+            "contrib": contrib_per_year
         })
 
-        print(f"{stages}")
+    valid_childcare_years = [int(i["year"]) for i in max_contrib_per_year if i["contrib"] >0]
     
-    for x in stages:
-        duration = x["end"] - x["start"] +1
-        credits = 0
+    childcare_credits = sum([i["contrib"] for i in max_contrib_per_year])       
+    childcare_credits_duration = len([i["year"] for i in max_contrib_per_year])
 
-        if x["status"] == "single":
-            credit_right = input(f"Waren Sie während Ihrer Zeit {x['start']}-{x['end']} alleine erziehungsberechetigt? (ja/nein)\n").strip().lower()
-            if credit_right == "ja":
-                credits = pre_childcare_credits * duration
+    childcare_credits_yearly = childcare_credits / contrib_years 
 
-        elif x["status"] == "married":
-            credit_right = input(f"Waren Sie in den Jahren als Sie verheiratet waren {x['start']}-{x['end']} beide erziehungsberechtigt? (ja/nein)\n").strip().lower()
-            if credit_right == "ja":
-                credits = (pre_childcare_credits * duration) /2
-            elif credit_right == "nein":
-                try:
-                    years_right = int(input(f"Wie viele Jahre waren Sie von Ihrer {duration} erziehungsberechtigt\n"))
-                    if 0 <= years_right <= duration:
-                        years_single = duration - years_right 
-                        credits = pre_childcare_credits * years_single
-                except ValueError:
-                    print("Geben Sie eine Zahl für die Anzahl Jahre ein.")
-                    continue
-        
-        childcare_credits += credits
-        
-        if childcare_credits == 0:
-            childcare_credits_monthly = 0
-        else:
-            childcare_credits_monthly = childcare_credits / contrib_years
-    
     childcare_data = {
         "childcare_credits": childcare_credits,
         "childcare_credits_duration": childcare_credits_duration,
-        "start_year": start_children,
-        "end_year": end_childcare_year,
-        "childcare_credits_yearly": childcare_credits_monthly
+        "start_year": minimum_credit_y,
+        "end_year": maximum_credit_y,
+        "childcare_credits_yearly": childcare_credits_yearly,
+        "valid_childcare_years": valid_childcare_years
     }
 
-    print(f"\nCHILDCARE CREDITS: {childcare_data}")
+    if not childcare_data:
+        childcare_data = {
+            "childcare_credits": 0,
+            "childcare_credits_duration": 0,
+            "start_year": None,
+            "end_year": None,
+            "childcare_credits_yearly": 0,
+            "valid_childcare_years": []
+        }
+
     return childcare_data
 
 #Betreuungsgutschriften
 
-def calculate_betreuungsgutschriften(childcare_data, contrib_years):
-    end_year = childcare_data["end_year"] 
-    start_year = childcare_data["start_year"]
-
-    betreuungsgutschriften_anspruch = input("Haben Sie anspruch auf Betreuungsgutschrfiten. (ja/nein)\n").lower()
-    if betreuungsgutschriften_anspruch == "ja":
-        try:
-            betreuunsgutschriften_jahre = int(input("Wie viele Jahre hatten Sie Anspruch auf Betreuungsgutschriften?\n"))
-            betreuungsgutschrift_start = int(input("Ab welchem Jahr haben Sie Anspruch auf Betreuungsgutschriften?\n"))
-            
-            anspruch_end = betreuungsgutschrift_start + betreuunsgutschriften_jahre -1
-
-            if end_year or start_year == 0:
-                betreuungsgutschriften = betreuunsgutschriften_jahre * pre_betreuungsgutschriften
-            else:
-                if betreuungsgutschrift_start >= start_year:
-                    if anspruch_end <= end_year:
-                        betreuungsgutschriften = 0
-                    elif anspruch_end > end_year:
-                        overlaptime = anspruch_end - end_year +1
-                        betreuungsgutschriften = overlaptime * pre_betreuungsgutschriften
-                elif betreuungsgutschrift_start < start_year:
-                    if anspruch_end <= end_year:
-                        overlaptime = start_year - betreuungsgutschrift_start +1
-                        betreuungsgutschriften = overlaptime * pre_betreuungsgutschriften
-                    elif anspruch_end > end_year:
-                        overlaptime_1 = start_year - betreuungsgutschrift_start +1
-                        overlaptime_2 = anspruch_end - end_year +1
-                        betreuungsgutschrift_start = (overlaptime_1+overlaptime_2) * pre_betreuungsgutschriften
+def calculate_betreuungsgutschriften(childcare_data, contrib_years, web_betreuungsgutschriften_has_data, web_bvg_betreuungsgutschriften_data):
+    betreuungsgutschriften = 0
+    betreuungsgutschriften_yearly = 0
     
-            betreuungsgutschriften_yearly = betreuungsgutschriften / contrib_years
-            print(f"\nBETREUUNGSGUTSCHRFITEN: {betreuungsgutschriften_yearly }")
-            return betreuungsgutschriften_yearly
+    childcare_credits = childcare_data.get("valid_childcare_years", [])
+
+    betreuungsgutschriften_anspruch = web_betreuungsgutschriften_has_data
+
+    if betreuungsgutschriften_anspruch == "ja":
+        for i in web_bvg_betreuungsgutschriften_data:
+            start_year = i["start_age"]
+            end_year = i["end_age"]
+            contrib = 0
+
+            for year in range(start_year, end_year +1):
+                if year in childcare_credits:
+                    pre_contrib = 0
+                else:
+                    pre_contrib = pre_betreuungsgutschriften
                 
-        except ValueError:
-            print("Geben Sie eine gültige Zahl ein")
-            betreuungsgutschriften_yearly = 0
-            return betreuungsgutschriften_yearly
+                contrib += pre_contrib
+
+            betreuungsgutschriften += contrib
+
+    else:
+        betreuungsgutschriften = 0
+        betreuungsgutschriften_yearly = 0
+
+    betreuungsgutschriften_total = betreuungsgutschriften
+
+    if betreuungsgutschriften_total > 0 and contrib_years > 0: 
+        betreuungsgutschriften_yearly = betreuungsgutschriften_total / contrib_years
+    
     else:
         betreuungsgutschriften_yearly = 0
-        return betreuungsgutschriften_yearly
+
+    return betreuungsgutschriften_yearly
 
 #Kombiniertes Einkommen
 
@@ -590,24 +600,25 @@ def calculate_combined_income(contrib_data, yearly_status_data, contrib_years):
     total_income = sum(x["combined_income"] for x in combined_income)
     combined_average_income = total_income / contrib_years
 
-    print(f"\nCOMBINED AVERAGE INCOME: {combined_average_income}")
+    if not combined_average_income:
+        return 0
+
     return combined_average_income
 
 #Aufwertungsfaktor
 
 def calculate_aufwertungsfaktor(combined_average_income, vintage):
-    try:
-        vintage = vintage
-        row = data_aufwertungsfaktor_ahv.loc[data_aufwertungsfaktor_ahv["jahrgang"] == vintage]
-        if row.empty:
-            return combined_average_income
-        factor = row["aufwertungsfaktor"].values[0]
-        ahv_income = combined_average_income * factor
-        print(f"\nEINKOMMEN NACH AUFWERTUNGSFAKTOR: {ahv_income}")
-        return ahv_income
+    vintage = vintage
+    row = data_aufwertungsfaktor_ahv.loc[data_aufwertungsfaktor_ahv["jahrgang"] == vintage]
+    if row.empty:
+        return combined_average_income
+    factor = row["aufwertungsfaktor"].values[0]
+    ahv_income = combined_average_income * factor
 
-    except ValueError:
-        print("Geben Sie eine Zahl ein.")
+    if not ahv_income:
+        return 0
+
+    return ahv_income
 
 #Rente anhand Tabelle berechnen
 
@@ -627,30 +638,32 @@ def calculate_pension(ahv_income, contrib_years):
         data_pension_ahv["diff"] = abs(data_pension_ahv["einkommen"] - ahv_income)
         single_pension = data_pension_ahv.loc[data_pension_ahv["diff"].idxmin()]["rente"]
         data_pension_ahv.dropna(subset=["diff"], inplace=True)
-        print(f"\nEINZLNE RENTE: {single_pension}")
         return single_pension
     
     elif ahv_income <= min_ahv_income:
         single_pension = min_pension
-        print(f"\nEINZELNE RENTE: {single_pension}")
         return single_pension
     
     elif ahv_income >= max_ahv_income:
         single_pension = max_pension
-        print(f"\nEINZELNE RENTE: {single_pension}")
         return single_pension
+    
+    if not single_pension:
+        return 0
 
 #Rente plafonieren
 
-def calculate_plafonierte_pension(single_pension, contrib_data):
-    married = input("Sind Sie aktuell verheiratet? (ja/nein)\n").lower()
+def calculate_plafonierte_pension(single_pension, web_plafonierte_rente_data):
+    married = web_plafonierte_rente_data
 
     if married == "ja":
         pension = single_pension * 0.75
     else:
         pension = single_pension
 
-    print(f"\nPLAFONIERTE RENTE: {pension}")
+    if not pension:
+        return 0
+    
     return pension
 
 #Deckungsgrad berechnen
@@ -661,8 +674,6 @@ def calculate_deckungsgrad(pension, total_contrib_data):
     employer_contrib = sum(x["total_employer_contrib"] for x in total_contrib_data)
 
     lifetime_pension = pension * 12 * pension_time
-    print(f"{lifetime_pension}")
-    print(f"{total_contrib}")
 
     if total_contrib > 0:
         deckungsgrad_total = total_contrib / lifetime_pension * 100
@@ -679,7 +690,15 @@ def calculate_deckungsgrad(pension, total_contrib_data):
         "employer_contrib": round(employer_contrib ,2)
     }]
 
-    print(f"\nDECKUNGSGRAD AHV: {deckungsgrad_ahv}")
+    if not deckungsgrad_ahv:
+        deckungsgrad_ahv.append({
+            "deckungsgrad_total": 0,
+            "deckungsgrad_pers": 0,
+            "total_contrib": 0,
+            "pers_contrib": 0,
+            "employer_contrib": 0
+        })
+
     return deckungsgrad_ahv
 
 
@@ -720,61 +739,26 @@ def calculate_bvg_income(income_age, min_age, max_age):
     
     if total_years == 0:
         return 0
+    
     avg_bvg_income = total_income / total_years
-    print(f"\nBVG AVG INCOME: {avg_bvg_income}")
+
+    if not avg_bvg_income:
+        return 0
+    
     return avg_bvg_income
 
 #BVG Beiträge 
 
-def calculate_bvg_contrib(income_data, bvg_contrib, koordinationsabzug, max_bvg_income, min_bvg_income):
+def calculate_bvg_contrib(income_data, bvg_contrib, koordinationsabzug, max_bvg_income, min_bvg_income, web_bvg_contrib_angestellt_spez_data, web_bvg_contrib_angestellt_data, web_bvg_contrib_selbständig_spez_data, web_bvg_contrib_selbständig_data):
     yearly_contrib_data = []  
     total_contrib = 0  
 
-    status = set(entry["status"] for entry in income_data) 
-
-    if "angestellt" in status:
-        spec_conditions_bvg = input("Hatten Sie spezielle BVG-Konditionen, welche nicht dem gesetzlichen Standards entsprachen (überobligatorische Verischerung, Aufteilung BVG-Beiträge...)\n").lower()
-        if spec_conditions_bvg == "ja":
-            max_bvg_income = float(input("Was war Ihr maximal versichertes Einkommen\n"))      
-            koordinationsabzug = float(input("Was war Ihr Koordinationsabzug\n"))
-            min_bvg_income = float(input("Was war Ihr minimal versichertes Einkommen?\n"))
-        elif spec_conditions_bvg == "nein":
-            max_bvg_income = max_bvg_income
-            koordinationsabzug = koordinationsabzug
-            min_bvg_income = min_bvg_income
-
-    if "selbständig" in status:
-        bvg_paym = input("Haben Sie während Ihrer Selbständigkeit BVG-Beiträge bezahlt? (ja/nein)\n").strip().lower()
-        if bvg_paym == "ja":
-            year = input("Haben Sie jedes Jahr BVG-Beiträge während Ihrer Selbständigkeit bezahlt?\n").strip().lower()
-            if year == "ja":
-                koordinationsabzug_self = float(input("Was war der Koordinationsabzug\n"))
-                min_bvg_income_self = float(input("Was war das minimal versicherte Einkommen\n"))
-                max_bvg_income_self = float(input("Was war das maximal versicherte Einkommen\n"))
-            else:
-                bvg_self_employed_data = []
-
-                while True:
-                    start_year_self = input("Mit welchem Alter haben Sie in der Selbständigkeit BVG-Beiträge bezahlt\n").lower()
-                    if start_year_self == "stop":
-                        break  
-                    start_age = float(start_year_self)
-                    end_age = float(input("Bis zu welchem Alter haben Sie Beiträge bezahlt?\n"))
-                    koordinationsabzug_self = float(input("Was war der Koordinationsabzug\n"))
-                    min_bvg_income_self = float(input("Was war das minimal versicherte Einkommen\n"))
-                    max_bvg_income_self = float(input("Was war das maximal versicherte Einkommen\n"))   
-
-                    bvg_self_employed_data.append({
-                        "start_age": start_age,
-                        "end_age": end_age,
-                        "koordinationsabzug": koordinationsabzug_self,
-                        "min_vers_income": min_bvg_income_self,
-                        "max_vers_income": max_bvg_income_self
-                    })                  
+    bvg_spec_cond_angestellt = web_bvg_contrib_angestellt_spez_data
+    bvg_paym_selb = web_bvg_contrib_selbständig_spez_data
 
     for i in income_data:
-        start_age = i["start_age"]   
-        end_age = i["end_age"]     
+        start_age = i["start_age"]
+        end_age = i["end_age"]
         income = i["income"]
         status = i["status"]
 
@@ -783,89 +767,93 @@ def calculate_bvg_contrib(income_data, bvg_contrib, koordinationsabzug, max_bvg_
                 continue
 
             if status == "angestellt":
-                for c in bvg_contrib:
-                    contrib_min_age = c["min_alter"]
-                    contrib_max_age = c["max_alter"]
-                    contrib_perc = c["contrib"]
-                    
-                    if contrib_min_age <= x <= contrib_max_age:
-                        if min_bvg_income <= income <= max_bvg_income:
-                            calcul_income = income - koordinationsabzug
-                            contrib = calcul_income * contrib_perc
-                        elif min_bvg_income <= income > max_bvg_income:
-                            calcul_income = max_bvg_income - koordinationsabzug
-                            contrib = calcul_income *contrib_perc
-                        elif min_bvg_income > income:
-                            contrib = 0                            
+                for y in bvg_contrib:
+                    contrib_min_age_a = y["min_alter"]
+                    contrib_max_age_a = y["max_alter"]
+                    contrib_perc_a = y["contrib"]
 
-
-            elif status == "selbständig":
-                if bvg_paym == "ja":
-                    for c in bvg_contrib:
-                        contrib_min_age = c["min_alter"]
-                        contrib_max_age = c["max_alter"]
-                        contrib_perc = c["contrib"]
-                        
-                        if year == "ja":
-                            if contrib_min_age <= x <= contrib_max_age:
-                                if min_bvg_income_self <= income < max_bvg_income_self:
-                                    calcul_income = income - koordinationsabzug_self
-                                    contrib = calcul_income * contrib_perc
-                                elif min_bvg_income_self <= income > max_bvg_income_self:
-                                    calcul_income = max_bvg_income_self - koordinationsabzug_self
-                                    contrib = calcul_income * contrib_perc
-                                else:
-                                    contrib = 0  
-                            else:
-                                    contrib = 0
-                        else:
-                            for m in bvg_self_employed_data:
-                                bvg_start_age = m["start_age"]
-                                bvg_end_age = m["end_age"]
-                                koordinationsabzug = m["koordinationsabzug"]
-                                min_bvg_income_self = m["min_vers_income"]
-                                max_bvg_income_self = m["max_vers_income"]
-
-                                if contrib_min_age <= x <= contrib_max_age and bvg_start_age <= x <= bvg_end_age:
-                                    if min_bvg_income_self <= income <= max_bvg_income_self:
-                                        calcul_income = income - koordinationsabzug_self
-                                        contrib = calcul_income * contrib_perc
-                                    elif min_bvg_income_self <= income > max_bvg_income_self:
-                                        calcul_income = max_bvg_income_self - koordinationsabzug_self
-                                        contrib = calcul_income * contrib_perc
-                                    elif min_bvg_income_self > income:
+                    if bvg_spec_cond_angestellt == "Ja":
+                        for z in web_bvg_contrib_angestellt_data:
+                            spec_min_age_a = z["start_age"]
+                            spec_max_age_a = z["end_age"]
+                            spec_min_income_a = z["min_income"]
+                            spec_max_income_a = z["max_income"]
+                            spec_koordinationsabzug_a = z["koordinationsabzug"]
+                            
+                            if contrib_min_age_a <= x <= contrib_max_age_a:
+                                if spec_min_age_a <= x <= spec_max_age_a:
+                                    if spec_min_income_a <= income <= spec_max_income_a:
+                                        calcul_income = income - spec_koordinationsabzug_a
+                                        contrib = calcul_income * contrib_perc_a
+                                    elif spec_min_income_a < income > spec_max_income_a:
+                                        calcul_income = spec_max_income_a - spec_koordinationsabzug_a
+                                        contrib = calcul_income * contrib_perc_a
+                                    elif spec_min_income_a > income:
                                         contrib = 0
-                                else:
-                                    contrib = 0
+                    else:
+                        if contrib_min_age_a <= x <= contrib_min_age_a:
+                            if min_bvg_income <= income <= max_bvg_income:
+                                calcul_income = income - koordinationsabzug
+                                contrib = calcul_income * contrib_perc_a
+                            elif min_bvg_income <= income > max_bvg_income:
+                                calcul_income = max_bvg_income - koordinationsabzug
+                                contrib = calcul_income *contrib_perc_a
+                            elif min_bvg_income > income:
+                                contrib = 0    
+                        
+            
+            elif status == "selbständig":
+                if bvg_paym_selb == "Ja":
+                    for z in web_bvg_contrib_selbständig_data:
+                        spec_min_age_s = z["start_age"]
+                        spec_max_age_s = z["end_age"]
+                        spec_min_income_s= z["min_income"]
+                        spec_max_income_s = z["max_income"]
+                        spec_koordinationsabzug_s = z["koordinationsabzug"]
+                        spec_percentage_s = z["percentage"]
+
+                        if spec_min_age_s <= x <= spec_max_age_s:
+                            if spec_min_income_s <= income <= spec_max_income_s:
+                                calcul_income = income - spec_koordinationsabzug_s
+                                contrib = calcul_income * spec_percentage_s
+                            elif spec_min_income_s < income >= spec_max_income_s:
+                                calcul_income = spec_max_income_s - spec_koordinationsabzug_s
+                                contrib = calcul_income * spec_percentage_s
+                            elif spec_min_income_s > income:
+                                contrib = 0
                 else:
                     contrib = 0
-            else: 
+            
+            else:
                 contrib = 0
 
             total_contrib += contrib
-
+                        
             yearly_contrib_data.append({
                 "year": x,
                 "contrib": contrib,
                 "gesamt_contrib": total_contrib
             })
+    
+    if not yearly_contrib_data:
+        yearly_contrib_data.append({
+            "year": 0,
+            "contrib": 0,
+            "gesamt_contrib": 0
+        })
 
-    print(f"\nCONTRIB BVG: {yearly_contrib_data}")
     return yearly_contrib_data
 
 #BVG Zinssatz
 
-def calculate_bvg_yield():
+def calculate_bvg_yield(web_bvg_yield_data):
     yearly_yield_dict = {}
     min_yearly_yield = 1.25
-
-    while True:
-        start_y = input("Von welchem Alter galt der Zinssatz? mit stop beenden\n")
-        if start_y == "stop":
-            break
-        start_y = int(start_y)
-        end_y = int(input("Bis zu welchem Alter galt dieser Zins\n"))
-        yearly_yield = float(input("Was war der jährliche Zinssatz welcher Ihre PK auszahlte pro Jahr?\n"))
+    
+    for i in web_bvg_yield_data:
+        start_y = i["start_age"]
+        end_y = i["end_age"]
+        yearly_yield = i["yield"]
 
         for x in range(start_y, end_y +1):
             if x < 25:
@@ -880,7 +868,12 @@ def calculate_bvg_yield():
             "yield": yield_val
         })
 
-    print(f"\nBVG ZINS: {yearly_yield_list}")
+    if not yearly_yield_list:
+        yearly_yield_list.append({
+            "year": 0,
+            "yield": 0
+        })
+
     return yearly_yield_list
 
 #Vermögen Berechnen mit Zins
@@ -909,14 +902,20 @@ def calculate_bvg_capital(yearly_contrib_data, yearly_yield_list):
             "asset": contrib,
             "total_asset": round(bvg_assets, 2)
         }]
+    
+    if not total_bvg_assets:
+        total_bvg_assets.append({
+            "year": 0,
+            "asset": 0,
+            "total_asset": 0
+        })
 
-    print(f"\nBVG Vermögen: {bvg_assets}")
     return total_bvg_assets
 
 #BVG Pension berechnen
 
 def calculate_bvg_pension(total_bvg_assets):
-    bvg_assets = total_bvg_assets[-1]["total_asset"]
+    bvg_assets = total_bvg_assets[-1]["total_asset"] if total_bvg_assets else 0
 
     pension_yearly = bvg_assets * umwandlungssatz
     pension_monthly = pension_yearly /12
@@ -933,34 +932,48 @@ def calculate_bvg_pension(total_bvg_assets):
         "capital_pension_monthly": capital_monthly_pension
     }
 
-    print(f"\nPENSION BVG: {pension_data}")
+    if not pension_data:
+        pension_data = {
+            "pension_monthly": 0,
+            "pension_yearly": 0,
+            "total_pension": 0,
+            "kapitalbezug": 0,
+            "capital_pension_monthly": 0
+        }
+
     return pension_data
 
 #Deckungsgrad der BVG berechnen
 
-def calculate_deckungsgrad_bvg(yearly_contrib_data, pension_data, income_data):
+def calculate_deckungsgrad_bvg(yearly_contrib_data, pension_data, income_data, web_bvg_deckungsgrad_data):
     total_pension = pension_data["total_pension"]
-    total_contrib = yearly_contrib_data[-1]["gesamt_contrib"]
+    total_contrib = yearly_contrib_data[-1]["gesamt_contrib"] if yearly_contrib_data else 0
     bvg_assets = pension_data["kapitalbezug"]
 
+    if not total_contrib or total_pension or bvg_assets:
+        deckungsgrad_data = {
+            "deckungsgrad_rente": 0,
+            "pers_percentage": 0,
+            "total_contrib": 0,
+            "pers_contrib": 0,
+            "employer_contrib": 0,
+            "zinszahlungen": 0
+        }
+
+        return deckungsgrad_data
+    
     bvg_data = []
 
-    while True:
-        start_y_share = input("Wann startete diese Aufteilung? (z.B. 25 oder stop)\n").lower() 
-        if start_y_share == "stop":
-            break
-        try:
-            start_y_share = int(start_y_share)
-            end_y_share = int(input("Wann stoppte diese Zeitdauer?\n"))
-            contrib_share = float(input("Wie viel % zahlten Sie der gesamten BVG-Beiträge (z.B. 50, 40, 0)?\n"))
+    for i in web_bvg_deckungsgrad_data:
+        start_y_share = web_bvg_deckungsgrad_data["start_age"]
+        end_y_share = web_bvg_deckungsgrad_data["end_age"]
+        contrib_share = web_bvg_deckungsgrad_data["percentage"]
 
-            for year in range(start_y_share, end_y_share +1):
-                bvg_data.append({
-                    "year": year,
-                    "contrib_share": contrib_share / 100
-            })
-        except ValueError:
-            print("Ungültige Eingabe. Bitte erneut versuchen.\n")
+        for year in range(start_y_share, end_y_share +1):
+            bvg_data.append({
+                "year": year,
+                "contrib_share": contrib_share / 100
+        })
 
     income_data_new = []
     for data in income_data:
@@ -1008,9 +1021,7 @@ def calculate_deckungsgrad_bvg(yearly_contrib_data, pension_data, income_data):
         "employer_contrib": employer_contrib,
         "zinszahlungen": zinszahlungen,
     }
-
-    print(f"\nDECKUNGSGRAD BVG: {deckungsgrad_data}")
-        
+       
     return deckungsgrad_data
 
 ####################################################################################################################################################
@@ -1023,7 +1034,9 @@ def calculate_last_income(income_data):
     yearly_last_income = income_data[-1]["income"]
     last_income = yearly_last_income / 12 
 
-    print(f"\nLETZTES EINKOMMEN: {last_income}")
+    if not last_income:
+        return 0
+
     return last_income
 
 #Gesamtrente aus 1. und 2. Säule berechnen
@@ -1041,7 +1054,12 @@ def calculate_pension_1_2(pension_data, pension):
         "pension_total": total_pension
     }
 
-    print(f"\nGESAMTE PENSION: {total_pension_data}")
+    if not total_pension_data:
+        total_pension_data = {
+            "pension_bvg_capital_total": 0,
+            "pension_total": 0
+        }
+
     return total_pension_data
 
 #Wie viel Rente prozentual zum letzten Einkommen
@@ -1051,10 +1069,6 @@ def calculate_percentage_income(total_pension_data, last_income):
     pension_capital = total_pension_data["pension_bvg_capital_total"]
     pension = total_pension_data["pension_total"]
 
-    print(f"\n{last_income_monthly}")
-    print(f"{pension_capital}")
-    print(f"{pension}\n")
-
     percentage_of_income_capital = 100 / last_income_monthly * pension_capital
     percentage_of_income = 100 / last_income_monthly * pension
 
@@ -1063,12 +1077,17 @@ def calculate_percentage_income(total_pension_data, last_income):
         "perc_o_i": percentage_of_income
     }
 
-    print(f"\nPROZENTSATZ RENTE ZU EINKOMMEN: {percentage_income_pension}")
+    if not percentage_income_pension: 
+        percentage_income_pension = {
+            "perc_o_i_capital": 0,
+            "perc_o_i": 0
+        }
+
     return percentage_income_pension
 
 #Nötige Pension um 100% zu erhalten berechnen
 
-def calculate_necessary_pension(total_pension_data, last_income):
+def calculate_necessary_pension(pension_time, total_pension_data, last_income, web_private_portfolio_amount_data):
     pension_capital = total_pension_data["pension_bvg_capital_total"]
     pension = total_pension_data["pension_total"]
 
@@ -1078,7 +1097,7 @@ def calculate_necessary_pension(total_pension_data, last_income):
     pre_necessary_pension_capital_portfolio = private_pension_capital * 12 * pension_time
     pre_necessary_pension_portfolio = private_pension * 12 * pension_time
 
-    third_savings = int(input("Wie hoch ist Ihr Vermögen in der 3. Säule (bspw. 10000 - CHF.\n"))
+    third_savings = web_private_portfolio_amount_data
 
     necessary_pension_capital_portfolio = pre_necessary_pension_capital_portfolio - third_savings
     necessary_pension_portfolio = pre_necessary_pension_portfolio - third_savings
@@ -1088,13 +1107,52 @@ def calculate_necessary_pension(total_pension_data, last_income):
         "necessary_portfolio": necessary_pension_portfolio
     }
 
-    print(f"\nNÖTIGES PORTFOLIO: {necessary_portfolio_data}")
+    if not necessary_portfolio_data:
+        necessary_portfolio_data = {
+            "necessary_portfolio_capital": 0,
+            "necessary_portfolio": 0
+        }
+
     return necessary_portfolio_data
 
+#Gewünschtes Portfolio 
+
+def calculate_wished_monthly_pension(pension_time, total_pension_data, web_spec_monthly_payment_data, web_monthly_payment_data, web_private_portfolio_amount_data):
+    pension_capital = total_pension_data["pension_bvg_capital_total"]
+    pension = total_pension_data["pension_total"]
+
+    private_savings = web_private_portfolio_amount_data
+
+    spec_monthly_paym = web_spec_monthly_payment_data
+    if spec_monthly_paym == "beliebig":
+        monthly_pension = web_monthly_payment_data
+
+        monthly_pension * 12
+        total_pension_portfolio = monthly_pension * pension_time
+
+        wanted_necessary_pension_capital_portfolio = total_pension_portfolio - (pension_capital + private_savings)
+        wanted_necessary_pension_portfolio = total_pension_portfolio - (pension + private_savings)
+
+        wanted_necessary_portfolio_data = {
+            "wanted_necessary_portfolio_capital": wanted_necessary_pension_capital_portfolio,
+            "wanted_necessary_portfolio": wanted_necessary_pension_portfolio
+        }
+
+        if not wanted_necessary_portfolio_data:
+            wanted_necessary_portfolio_data = {
+                "wanted_necessary_portfolio_capital": 0,
+                "wanted_necessary_portfolio": 0
+            }
+
+        return wanted_necessary_portfolio_data
+    
+    else:
+        return 0
+        
 #Zeitdauer für Sparrate
 
-def time_for_saving_rate(vintage, basic_year, pension_age):
-    sparrate = input("Möchten Sie die Sparrate über die gesamte Volljährigkeit bis zum aktuellen Alter / Pensionsalter simulieren?\n").lower()
+def time_for_saving_rate(vintage, basic_year, pension_age, web_saving_rate_data):
+    sparrate =  web_saving_rate_data["input"]
     if sparrate == "ja":
         start_year_s = 18
         if pension_age <= (basic_year - vintage):
@@ -1102,13 +1160,19 @@ def time_for_saving_rate(vintage, basic_year, pension_age):
         elif pension_age > (basic_year - vintage):
             end_year_s = (basic_year - vintage)
     else: 
-        start_year_s = int(input("Ab welchem Alter möchten Sie die Sparrate simulieren?\n"))
-        end_year_s = int(input("Bis zu welchem Jahr möchten Sie diese Rente simulieren?\n"))
+        start_year_s = web_saving_rate_data["start_age"]
+        end_year_s = web_saving_rate_data["end_age"]
 
     years_savings_data = {
         "savings_starting_year": int(start_year_s),
         "savings_ending_year": int(end_year_s)
     }
+
+    if not years_savings_data:
+        years_savings_data = {
+            "savings_starting_year": 0,
+            "savings_ending_year": 0
+        }
 
     return years_savings_data
 
@@ -1161,89 +1225,17 @@ def required_savings_rate(target_portfolio, annual_return, income_data, years_sa
 
     return (low + high) / 2  # Rückgabe des Näherungswerts, falls max_iter erreicht ist
 
-####################################################################################################################################################
-#Grundlagen - Summary 
-####################################################################################################################################################
 
-#Zusammenfassung aller Pre-Daten 
-avg_saving_yield = average_saving_yield / 100#Durchschnittlicher Bankzinssatz
-avg_inflation = average_inflation /100 #Durchschnittliche Inflation
-avg_msci_15y = avg_return_msci_world_15y #MSCI-World Rendite über die letzten 15 Jahre
-avg_msci_25y = avg_return_msci_world_25y #MSCI-World Rendite über die letzten 25 Jahre
-avg_msci = avg_return_msci_world #Durchschnittliche MSCI-World Rendite von 15 und 25 Jahre
+def calculate_total_ahv_income(ahv_income, childcare_credit_income, betreuungsgutschriften_income):
+    total_ahv_income = ahv_income + childcare_credit_income + betreuungsgutschriften_income
 
-avg_yearly_yield_incl_infl = avg_msci - avg_inflation #Durchschn. MSCI-World Rendite minus Inflation also reale Rendite
-avg_saving_yield_incl_infl = avg_saving_yield - avg_inflation #Durchschn. Bankzinssatz minus Inflation, reale Sparrate
+    if not total_ahv_income:
+        total_ahv_income = 0
 
-vintage = calculate_vintage(web_vintage_data) #Jahrgang berechnen
-income_data = calculate_income() #Liste aller Einkommen
-avg_income = average_income(income_data) #Durchschnittliches Einkommen über alle Einträge
+    return total_ahv_income
 
-####################################################################################################################################################
-#AHV - Berechnung 
-####################################################################################################################################################
 
-contrib_data, contrib_years = calculate_contrib_years()
-yearly_status_data = calculate_yearly_status(contrib_data) #Ehepartner Status, und deren Einkommen
-average_ahv_income = calculate_ahv_income(contrib_data, 21, 65 +1) #Durchschnittliches Einkommen während AHV Beitragsjahre
-combined_income = calculate_combined_income(contrib_data, yearly_status_data, contrib_years) #Durchschnittliches Einkommen von Ehepartner und mir als Rechnungsgrundlage
-adjusted_ahv_income = calculate_aufwertungsfaktor(combined_income, vintage) #Aufwertungsfaktor auf gemeinsames Einkommen gem. Jahrgang
-childcare_data = calculate_childcare_credits(yearly_status_data, contrib_years) #Berechnung Erziehungsgutschriften
-childcare_credit_income = childcare_data.get("childcare_credits_yearly", 0) #Gesamtbetrag pro Jahr für Erziehungsgutschriften 
-betreuungsgutschriften_income = calculate_betreuungsgutschriften(childcare_data, contrib_years) #Betreuungsgutschriften berechnen
-
-def calculate_total_ahv_income(adjusted_ahv_income, childcare_credit_income, betreuungsgutschriften_income):
-    ahv_income = adjusted_ahv_income + childcare_credit_income + betreuungsgutschriften_income
-    return ahv_income
-
-ahv_income = calculate_total_ahv_income(adjusted_ahv_income, childcare_credit_income, betreuungsgutschriften_income)
-
-#Einkommen mit allen Zusätzen
-
-pre_ahv_pension = calculate_pension(ahv_income, contrib_years) #Pension von Einkommen persönlich
-ahv_pension = calculate_plafonierte_pension(pre_ahv_pension, contrib_data) #Plafonierte Rente bei verheirateten
-ahv_contrib = calculate_ahv_contrib(contrib_data, data_min_yearly_contrib, self_employed_contrib, employee_contrib, employer_contrib, contrib_years) #AHV Beiträge 
-deckungsgrad = calculate_deckungsgrad(ahv_pension, ahv_contrib) #Deckungsgrad der AHV Beiträge und Pensionsauszahlung
-
-####################################################################################################################################################
-#BVG - Berechnung 
-####################################################################################################################################################
-
-bvg_income = calculate_bvg_income(income_data, 25, 65 +1) #Einkommen bei BVG
-bvg_contributions = calculate_bvg_contrib(income_data, bvg_contrib, koordinationsabzug, max_bvg_income, min_bvg_income) #BVG Beiträge
-yearly_yield_list = calculate_bvg_yield() #BVG mit Zins gesamtkapital
-bvg_asset = calculate_bvg_capital(bvg_contributions, yearly_yield_list)
-bvg_pension = calculate_bvg_pension(bvg_asset) #BVG Pensionsauszahlung
-deckungsgrad_bvg = calculate_deckungsgrad_bvg(bvg_contributions, bvg_pension, income_data) #Deckungsgrad der BVG
-
-bvg_pension_monthly = bvg_pension["pension_monthly"] #Monatliche Pension bei Rentenbezug
-bvg_pension_capital = bvg_pension["kapitalbezug"] #Gesamtkapital in der BVG 
-bvg_total_pension = bvg_pension["total_pension"] #Gesamtpension ausgezahlt bei Rentenbezug
-bvg_capital_monthly = bvg_pension["capital_pension_monthly"] #Rente monatlich bei Kapitalbezug
-
-####################################################################################################################################################
-#Private Pension - Berechnung 
-####################################################################################################################################################
-
-last_income = calculate_last_income(income_data) #Letztes Einkommen
-pension_1_2 = calculate_pension_1_2(bvg_pension, ahv_pension) #Gesamtrente aus 1. und 2. Säule
-percentage_income = calculate_percentage_income(pension_1_2, last_income) #Prozentsatz obligatorische Rente zum letzten Einkommen
-necessary_pension = calculate_necessary_pension(pension_1_2, last_income) #Nötige Rente um 100% des letzten Einkommens zu erhalten
-years_s = time_for_saving_rate(vintage, basic_year, pension_age) #Jahre für Sparrate zu berechnen.
-
-capital_inflation_msci_saving_rate_s = required_savings_rate(necessary_pension["necessary_portfolio_capital"], avg_yearly_yield_incl_infl, years_s, tol=1e-3, max_iter=100) #Saving-Rate MSCI-World Rendite avg. - Inflation
-capital_inflation_msci_saving_rate_p = final_portfolio_annual(capital_inflation_msci_saving_rate_s, years_s, avg_yearly_yield_incl_infl, income_data) #Portfoliowert nötig bei MSCI-World Rendite avg. - Inflation
-
-capital_inflation_bank_saving_rate_s = required_savings_rate(necessary_pension["necessary_portfolio_capital"], avg_saving_yield_incl_infl, years_s, tol=1e-3, max_iter=100) #Bankzins sparrate minus Inflation - Saving_rate
-capital_inflation_bank_saving_rate_p = final_portfolio_annual(capital_inflation_bank_saving_rate_s, years_s, avg_saving_yield_incl_infl, income_data) #Bankzins minus Inflation nötiges Portfoliowert
-
-inflation_msci_saving_rate_s = required_savings_rate(necessary_pension["necessary_portfolio"], avg_yearly_yield_incl_infl, years_s, tol=1e-3, max_iter=100) #Saving-Rate MSCI-World Rendite avg. - Inflation
-inflation_msci_saving_rate_p = final_portfolio_annual(inflation_msci_saving_rate_s, years_s, avg_yearly_yield_incl_infl, income_data) #Portfoliowert nötig bei MSCI-World Rendite avg. - Inflation
-
-inflation_bank_saving_rate_s = required_savings_rate(necessary_pension["necessary_portfolio"], avg_saving_yield_incl_infl, years_s, tol=1e-3, max_iter=100) #Bankzins sparrate minus Inflation - Saving_rate
-inflation_bank_saving_rate_p = final_portfolio_annual(inflation_msci_saving_rate_s, years_s, avg_saving_yield_incl_infl, income_data) #Bankzins minus Inflation nötiges Portfoliowert
-
-def calculate_saving_rates(capital_inflation_msci_saving_rate_s, capital_inflation_bank_saving_rate_s, inflation_msci_saving_rate_s, inflation_bank_saving_rate_s):
+def calculate_saving_rates(capital_inflation_msci_saving_rate_s, capital_inflation_bank_saving_rate_s, inflation_msci_saving_rate_s, inflation_bank_saving_rate_s, print_100_capital_msci_saving_rate_s):
     capital_inflation_msci_saving_rate_s = capital_inflation_msci_saving_rate_s *100
     capital_inflation_bank_saving_rate_s = capital_inflation_bank_saving_rate_s *100
     inflation_msci_saving_rate_s = inflation_msci_saving_rate_s *100
@@ -1253,51 +1245,29 @@ def calculate_saving_rates(capital_inflation_msci_saving_rate_s, capital_inflati
         "capital_inflation_msci_saving_rate": capital_inflation_msci_saving_rate_s,
         "capital_inflation_bank_saving_rate_s": capital_inflation_bank_saving_rate_s,
         "inflation_msci_saving_rate_s": inflation_msci_saving_rate_s,
-        "inflation_bank_saving_rate_s": inflation_bank_saving_rate_s
+        "inflation_bank_saving_rate_s": inflation_bank_saving_rate_s,
+        "capital_msci_saving_rate": print_100_capital_msci_saving_rate_s
     }
+
+    if not saving_rate_data:
+        saving_rate_data = {
+            "capital_inflation_msci_saving_rate": 0,
+            "capital_inflation_bank_saving_rate_s": 0,
+            "inflation_msci_saving_rate_s": 0,
+            "inflation_bank_saving_rate_s": 0,
+            "capital_msci_saving_rate": 0
+        }
 
     return saving_rate_data
 
-saving_rate_data = calculate_saving_rates(capital_inflation_msci_saving_rate_s, capital_inflation_bank_saving_rate_s, inflation_msci_saving_rate_s, inflation_bank_saving_rate_s)
 
-pension_1_2_pension = pension_1_2["pension_total"] #Rente gesamt bei Rentenbezug
-pension_1_2_capital = pension_1_2["pension_bvg_capital_total"] #Rente gesamt bei Kapitalbezug
+avg_saving_yield = average_saving_yield / 100 #Durchschnittlicher Bankzinssatz
+avg_inflation = average_inflation /100 #Durchschnittliche Inflation
+avg_msci_15y = avg_return_msci_world_15y #MSCI-World Rendite über die letzten 15 Jahre
+avg_msci_25y = avg_return_msci_world_25y #MSCI-World Rendite über die letzten 25 Jahre
+avg_msci = avg_return_msci_world #Durchschnittliche MSCI-World Rendite von 15 und 25 Jahre
 
-####################################################################################################################################################
-#Summary 
-####################################################################################################################################################
+avg_yearly_yield_incl_infl = avg_msci - avg_inflation #Durchschn. MSCI-World Rendite minus Inflation also reale Rendite
+avg_saving_yield_incl_infl = avg_saving_yield - avg_inflation #Durchschn. Bankzinssatz minus Inflation, reale Sparrate
 
-# - Alter
-print(f" Jahrgang: {vintage}")
-
-# - Average Income selber
-# - Averaege Income AHV 
-# - Berechnetes Avg. Einkommen für AHV
-# - Average BVG Income
-# - AHV Rente
-# - AHV Beitragshöhe
-# - AHV Deckungsgrad
-# - BVG Rente
-# - BVG Beitragshöhe
-# - BVG Deckungsgrad
-# - Letztes monatliches Einkommen & jetzige Rente aus 1. und 2. Säule
-# - Rente als % zum letzten Einkommen
-# - 3. Säule nötiges Portfolio um 100% zu erhalten
-# - Jährliche Inflationsrate Schweiz
-# - Zins auf Sparkonten Schweiz
-# - Renditen des MSCI World über verschiedene Zeiträume
-
-#Zinsen und Renditen in unterschiedlichen Szenarien
-print(f"\nZinsen und Rendite pro Jahr:")
-print(f"Durchschnittliche Rendite des MSCI-World (Avg. 25y und 15y): {avg_msci*100:.2f} %")
-print(f"Durchschnittliche Zinsen auf ein Sparkonto: {avg_saving_yield*100:.2f} %")
-print(f"Durchschnittliche Rendite des MSCI-World (Avg. 25y und 15y) inkl. Inflation: {avg_yearly_yield_incl_infl*100:.2f} %")
-print(f"Durchschnittliche Zinsen auf ein Sparkonto inkl. Inflation: {avg_saving_yield_incl_infl*100:.2f} %")
-
-#Sparraten unter verschiedenen Bedingungen über alle Jahre
-print(f"\nSparraten unter verschiedenen Szenarien:")
-print(f"Nötige Sparrate bei MSCI-World Rendite mit Inflation, bei einem Kapitalbezug aus der PK: {capital_inflation_msci_saving_rate_s:.2f} %")
-print(f"Nötige Sparrate bei Sparkonto Zinsen mit Inflation, bei einer Kapitalbezug aus der PK: {capital_inflation_bank_saving_rate_s:.2f}")
-print(f"Nötige Sparrate bei MSCI-World Rendite ohne Inflation, bei einem Rentenbezug aus der PK: {inflation_msci_saving_rate_s:.2f} %")
-print(f"Nötige Sparrate bei Sparkonto Zinsen ohne Inflation, bei einer Rentenbezug aus der PK: {inflation_bank_saving_rate_s:.2f}")
 

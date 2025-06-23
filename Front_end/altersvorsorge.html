@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lunaris-Rententool</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/data.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/altersvorsorge.css') }}">
 </head>
 <body>
     <h1>Rententool:</h1>
     <br>
 
     <!-- RENTENTOOL INPUT FORMULAR-->
-    <form method="POST" action="/pension_calculator">
+    <form id="form" method="POST" action="/altersvorsorge">
 
         <div id="vintage">
             <h4>Jahrgang:</h4>
@@ -57,7 +57,7 @@
                     <input name="return-income-income[]" type="number" id="select_income_income" class="income_income" placeholder="CHF">
     
                     <label for="select_income_status">Status:</label>
-                    <select name="return-income-status[]" id="select_income_status" class="income_select" onchange="addBvgContribField(); toggleVermoegen(this)">
+                    <select name="return-income-status[]" id="select_income_status" class="income_select" onclick="addBvgContribField(); toggleVermoegen(this)">
                         <option value="income_status_angestellt">angestellt:</option>
                         <option value="income_status_selbständig">selbständig:</option>
                         <option value="income_status_nicht_erwerbstätig">nicht erwerbstätig:</option>
@@ -194,13 +194,13 @@
                         <div class="erziehungsberechtigt-standard">
                             <div class="duration-erziehunsgberechtigt-standard" style="display: none;">
                                 <label class="erziehungsberechtigt-start-age">Von Jahr:</label>
-                                <select name="return-erziehungsberechtigt-start-age[]" class="select-erziehungsberechtigt-start-age"></select>
+                                <select class="select-erziehungsberechtigt-start-age"></select>
 
                                 <label class="erziehungsberechtigt-end-age">Bis Jahr:</slabel>
-                                <select name="return-erziehungsberechtigt-end-age[]" class="select-erziehungsberechtigt-end-age"></select>
+                                <select class="select-erziehungsberechtigt-end-age"></select>
 
                                 <label class="container-erziehungsberechtigt-status">Status:</label>
-                                <select name="return-erziehunsberechtigt-status[]" class="select-container-erziehungsberechtigt-status">
+                                <select class="select-container-erziehungsberechtigt-status">
                                     <option value="Gemeinsam">Gemeinsam</option>
                                     <option value="Alleine">Alleine</option>
                                     <option value="Nicht erziehungsberechtigt">Nicht erziehungsberechtigt</option>
@@ -210,13 +210,13 @@
                             <template class="erziehungsberechtigt-standard-template">
                                 <div class="erziehunsgberechtigt-standard-temp">
                                     <label class="erziehungsberechtigt-start-age-temp">Von Jahr:</label>
-                                    <select name="return-erziehungsberechtigt-start-age[]" class="select-erziehungsberechtigt-start-age-temp"></select>
+                                    <select class="select-erziehungsberechtigt-start-age-temp"></select>
 
                                     <label class="erziehungsberechtigt-end-age-temp">Bis Jahr:</label>
-                                    <select name="return-erziehungsberechtigt-end-age[]"  class="select-erziehungsberechtigt-end-age-temp"></select>
+                                    <select class="select-erziehungsberechtigt-end-age-temp"></select>
 
                                     <label class="erziehungsberechtigt-status-temp">Status:</label>
-                                    <select name="return-erziehunsberechtigt-status[]" class="select-erziehungsberechtigt-status-temp">
+                                    <select class="select-erziehungsberechtigt-status-temp">
                                         <option value="Gemeinsam">Gemeinsam</option>
                                         <option value="Alleine">Alleine</option>
                                         <option value="Nicht erziehungsberechtigt">Nicht erziehungsberechtigt</option>
@@ -242,18 +242,34 @@
                     <option value="Ja">Ja</option>
                 </select>
                 <br>
-                <label for="duration_betreuungsgutschriften" class="duration-betreuungsgutschriften" style="display: none;">Wie viele Jahre haben Sie Anspruch:</label>
-                <select name="return-duration-betreuungsgutschriften" class="duration-betreuungsgutschriften" id="duration_betreuungsgutschriften" style="display: none;"></select>
+                <div id="betreuungsgutschriften_entries">
+                    <div id="betreuungsgutschriften_container" style="display: none;">
+                        <label class="start-year-betreuungsgutschriften">Von Jahr:</label>
+                        <select name="return-start-year-betreuungsgutschriften[]" class="select-start-year-betreuungsgutschriften"></select>
 
-                <label for="start_year_betreuungsgutschriften" class="start-year-betreuungsgutschriften" style="display: none;">Wann begannen diese:</label>
-                <select name="return-start-year-betreuungsgutschriften" class="start-year-betreuungsgutschriften" id="start_year_betreuungsgutschriften" style="display: none;"></select>
+                        <label class="end-year-betreuungsgutschriften">Bis Jahr:</label>
+                        <select name="return-end-year-betreuungsgutschriften[]" class="select-end-year-betreuungsgutschriften"></select>
+                    </div>
+
+                    <template id="betreuungsgutschriften_container_template">
+                        <div class="betreuungsgutschrfiten-container-template">
+                            <label class="start-year-betreuungsgutschriften">Von Jahr:</label>
+                            <select name="return-start-year-betreuungsgutschriften[]" class="select-start-year-betreuungsgutschriften-temp"></select>
+
+                            <label class="end-year-betreuungsgutschriften">Bis Jahr:</label>
+                            <select name="return-end-year-betreuungsgutschriften[]" class="select-end-year-betreuungsgutschriften-temp"></select>
+                        </div>
+                    </template>
+                    <button type="button" id="betreuungsgutschriften_add_button" style="display: none;" onclick="addBetreuungsgutschriften(this)">Hinzufügen</button> 
+                    <button type="button" id="betreuungsgutschriften_remove_button" style="display: none;" onclick="removeBetreuungsgutschriften(this)">Entfernen</button>
+                </div>
             </div>
         </div>
 
         <!-- Plafonierte Rente -->
 
         <div id="plafonierte_rente">
-            <h4>Rente plafoniert:</h4>
+            <h4>Verheiratet:</h4>
             <div class="rente-plafoniert">
                 <label for="" class="is-married">Sind Sie aktuell verheiratet:</label>
                 <select name="return-is-married" id="is_married" class="is-married">
@@ -319,7 +335,7 @@
 
                 <div id="bvg_contrib_selbständig">
                     <div id="bvg_contrib_selbständig_container" style="display: none;">
-                        <label class="select-bvg-contrib-selbständig">Hatten Sie spezielle BVG-Konditionen in der Selbständigkeit</label>
+                        <label class="select-bvg-contrib-selbständig">Hatten Sie spezielle BVG-Beiträge in der Selbständigkeit bezahlt</label>
                         <select name="return-select-bvg-contrib-selbständig" class="select-bvg-contrib-selbständig" onchange="toggleBvgcontribselbständig(this)">
                             <option value="Nein">Nein</option>
                             <option value="Ja">Ja</option>
@@ -341,6 +357,9 @@
 
                         <label class="bvg-contrib-selbständig-koordinationsabzug">Was war Ihr Koordinationsabzug:</label>
                         <input type="number" name="return-bvg-contrib-selbständig-koordinationsabzug[]" class="select-bvg-contrib-selbständig-koordinationsabzug" placeholder="CHF">
+
+                        <label class="bvg-contrib-selbständig-percentage">Was war Ihr Prozentsatz:</label>
+                        <input type="number" name="return-bvg-contrib-selbständig-percentage[]" class="select-bvg-contrib-selbständig-percentage" placeholder="CHF">
                     </div>
 
                     <template id="bvg_contrib_selbständig_template">
@@ -359,6 +378,9 @@
 
                             <label class="bvg-contrib-selbständig-koordinationsabzug">Was war Ihr Koordinationsabzug:</label>
                             <input type="number" name="return-bvg-contrib-selbständig-koordinationsabzug[]" class="select-bvg-contrib-selbständig-koordinationsabzug" placeholder="CHF">
+
+                            <label class="bvg-contrib-selbständig-percentage">Was war Ihr Prozentsatz:</label>
+                            <input type="number" name="return-bvg-contrib-selbständig-percentage[]" class="select-bvg-contrib-selbständig-percentage" placeholder="CHF">
                         </div>
                     </template>
                 </div>
@@ -437,7 +459,25 @@
             <h4>Portfolio 3. Säule:</h4>
             <div class ="portfolio-necessary">
                 <label for="portfolio_necessary_input" class="portfolio-necessary-input">Wie hoch ist Ihr Vermögen in der 3. Säule:</label>
-                <input type="number" name="return-portfolio-necessary-input" id="portfolio_necessary_input" class="portfolio-necessary-input" placeholder="CHF"></ipnut>
+                <input type="number" name="return-portfolio-necessary-input" id="portfolio_necessary_input" class="portfolio-necessary-input" placeholder="CHF"></input>
+            </div>
+        </div>
+
+        <!-- Wunsch Auszahlung -->
+
+        <div id="monthly_payment">
+            <h4>Monatliche Wunsch-Rente:</h4>
+            <div id="spec_monthly_payment">
+                <label class="spec-monthly-payment">Wie möchten Sie Ihre monatliche Rente simulieren?</label>
+                <select name="return-spec-monthly-payment" class="spec-monthly-payment" onchange="toggleMonthlyPayment(this)">
+                    <option value="100%">100% des letzten Einkommens</option>
+                    <option value="beliebig">Beliebiger Betrag</option>
+                </select>
+            </div>
+
+            <div id="monthly_pension" style="display: none;">
+                <label class="monthly-pension">Wie hoch sollte Ihre monatliche Rente sein?</label>
+                <input type="number" name="return-monthly-pension" class="select-monthly-pension" placeholder="CHF"></input>
             </div>
         </div>
 
@@ -447,7 +487,7 @@
             <h4>Zeitdauer für Sparrate-Simulation</h4>
             <div class="saving-rate">
                 <label for="saving_rate_input" class="saving-rate-input">Möchten Sie die Sparrate über die gesamte Volljährigkeit simulieren?</label>
-                <select name="return-saving-rate-input" id="saving_rate_input" class="saving_rate_input" required onchange="toggleSavingRate(this)">
+                <select name="return-saving-rate-input" id="saving_rate_input" class="saving_rate_input" onchange="toggleSavingRate(this)">
                     <option value="Ja">Ja</option>
                     <option value="Nein">Nein</option>
                 </select>
@@ -468,30 +508,9 @@
     </form>
 
     <!-- OUTPUT VON PYTHON SKRIPT (RENTE AHV, BVG, 3. Säule Daten, Sparraten)-->
-    {% if results %}
-        <div id="results_section" style="display: none;">
-            <h1>Ergebnisse:</h1>
-            <ul>
-                <li>Jahrgang: {{ results["Jahrgang"] }}</li>
-                <li>Durchschnittliches Einkommen: {{ results["Average Income"] }}</li>
-                <li>Einkommen-Daten:
-                    <ul>
-                        {% for eintrag in results["Income"] %}
-                            <li>
-                                Start: {{ eintrag.start_age }}, Ende: {{ eintrag.end_ae }}, Einkommen: {{ eintrag.income }}, Status: {{ eintrag.status }}, Vermögen: {{ eintrag.vermögen }}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    {% endif %}
 
+    <div id="results_section"></div>
 
-<!--
-<script src="js/data.js"></script>
--->
-
-<script src="{{ url_for('static', filename='js/data.js') }}"></script>
+<script src="{{ url_for('static', filename='js/altersvorsorge.js') }}"></script>
 </body>
 </html>
