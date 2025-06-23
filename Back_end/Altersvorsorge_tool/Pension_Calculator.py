@@ -5,6 +5,9 @@
 
 #Alle Bibliotheken importieren
 import copy
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 #Aufbereitung der Web-Daten
 
@@ -51,7 +54,8 @@ avg_return_msci_world = (avg_return_msci_world_15y + avg_return_msci_world_25y) 
 
 import pandas as pd
 
-data_inflation = pd.read_csv(r"C:\Users\colin\OneDrive\Documents\Desktop\Lunaris\Website\Back_end\Altersvorsorge_tool\Datenquellen\LIK_Data.csv", sep=';', decimal='.', header=0)
+lik_data_path = os.path.join(BASE_DIR, "Datenquellen", "LIK_Data.csv")
+data_inflation = pd.read_csv(lik_data_path, sep=';', decimal='.', header=0)
 
 def parse_my_date(s):
     mon_str, year_str = s.split()
@@ -203,12 +207,15 @@ employee_contrib = 0.0435
 employer_contrib = 0.0435
 
 #Mindestbeiträge Nichterwärbstätige
-data_min_yearly_contrib = pd.read_excel(r"C:\Users\colin\OneDrive\Documents\Desktop\Lunaris\Website\Back_end\Altersvorsorge_tool\Datenquellen\nichterwärbstätige_beiträge.xlsx")
+min_yearly_contrib_path = os.path.join(BASE_DIR, "Datenquellen", "nichterwärbstätige_beiträge.xlsx")
+data_min_yearly_contrib = pd.read_excel(min_yearly_contrib_path)
 data_min_yearly_contrib.columns = ["vermögen", "einzahlung"]
 
 #Rententabelle
-excel_file_ahv_pension = pd.ExcelFile(r"C:\Users\colin\OneDrive\Documents\Desktop\Lunaris\Website\Back_end\Altersvorsorge_tool\Datenquellen\rententabelle_ahv.xlsx")
+rententabelle_path = os.path.join(BASE_DIR, "Datenquellen", "rententabelle_ahv.xlsx")
+excel_file_ahv_pension = pd.ExcelFile(rententabelle_path)
 sheet_names = excel_file_ahv_pension.sheet_names
+
 
 #Min. / Maximaleinkommen
 min_ahv_income = 15120
@@ -223,7 +230,8 @@ pre_childcare_credits = (3*min_full_pension)*12
 pre_betreuungsgutschriften = (3*min_full_pension)*12
 
 #Aufwertungsfaktor
-data_aufwertungsfaktor_ahv = pd.read_excel(r"C:\Users\colin\OneDrive\Documents\Desktop\Lunaris\Website\Back_end\Altersvorsorge_tool\Datenquellen\aufwertungsfaktor_ahv.xlsx")
+aufwertungsfaktor_path = os.path.join(BASE_DIR, "Datenquellen", "aufwertungsfaktor_ahv.xlsx")
+data_aufwertungsfaktor_ahv = pd.read_excel(aufwertungsfaktor_path)
 data_aufwertungsfaktor_ahv.columns = ["jahrgang","aufwertungsfaktor"]
 
 #Beitragsjahre
