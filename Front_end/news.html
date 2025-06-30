@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Lunaris - News{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/news.css') }}">
+{% endblock %}
+{% block content %}
+
+<main>
+    <header>
+        <h1>Lunaris Blog</h1>
+        <p>Bleibe informiert über aktuelle Marktbewegungen und Updates aus dem Lunaris-Ökosystem.</p>
+    </header>
+
+    <section class="carousel-section">
+        <div class="carousel-track">
+            <div class="carousel-card left"></div>
+            <div class="carousel-card center"></div>
+            <div class="carousel-card right"></div>
+        </div>
+    </section>
+
+    <h2 class="section-title">🔥 Beliebte Artikel</h2>
+    <div class="article-list">
+        <div class="article-card">
+        <h4>Lumen & Immobilien</h4>
+        <p>Wie verändert Lumen den Zugang zu Wohnraum?</p>
+        </div>
+        <div class="article-card">
+        <h4>Governance erklärt</h4>
+        <p>Soft- und Hard-Forks einfach erklärt.</p>
+        </div>
+        <div class="article-card">
+        <h4>Makrotrends 2025</h4>
+        <p>Wie Zentralbanken und DeFi interagieren.</p>
+        </div>
+    </div>
+
+    <h2 class="section-title">🔮 Lunaris Intern</h2>
+    <div class="lunaris-list">
+        <div class="updates-card">
+            <h4>Staking-Belohnungen angepasst</h4>
+            <p>Neues Modell bringt mehr Stabilität.</p>
+        </div>
+        <div class="updates-card">
+            <h4>Node Setup Guide</h4>
+            <p>So wirst du Teil des Netzwerks.</p>
+        </div>
+        <div class="updates-card">
+            <h4>Brücke zu Banken</h4>
+            <p>Was bedeutet die neue Lunaris Pay API?</p>
+        </div>
+    </div>
+
+    <section class="newsletter">
+        <h3>📬 Abonniere unseren Newsletter</h3>
+        <form>
+            <input type="email" placeholder="Deine E-Mail Adresse" required>
+            <button type="submit">Anmelden</button>
+        </form>
+    </section>
+
+</main>
+
+<script>
+    const postsUrl = "{{ url_for('static', filename='posts/posts.json') }}";
+</script>
+<script src="{{ url_for('static', filename='js/news.js') }}"></script>
+
+{% endblock %}

@@ -1,0 +1,309 @@
+/* === Grundlayout & Farben === */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(120deg, #0c0c0c 0%, #111 40%, #14092c 100%);
+  color: white;
+  min-height: 100vh;
+}
+
+/* === Erklärung === */
+.intro-section {
+  max-width: 1100px;
+  margin: 40px auto 30px auto;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.main-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 1.2rem;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 16px #7c4dff33;
+}
+
+.intro-text {
+  font-size: 1.25rem;
+  color: #d1cfff;
+  font-weight: 400;
+  line-height: 1.6;
+  margin: 0 auto;
+  max-width: 900px;
+  text-shadow: 0 1px 8px #14092c33;
+}
+
+/* === Formular-Kachel === */
+.altersvorsorge-card {
+  max-width: 1400px;
+  width: 90vw;
+  margin: 60px auto 40px auto;
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(124,77,255,0.13);
+  border-radius: 20px;
+  box-shadow: 0 0 32px rgba(124,77,255,0.10), 0 2px 16px rgba(0,0,0,0.18);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  position: relative;
+}
+
+input[type="number"] {
+  background: #181828;
+  color: #fff;
+  border: 1.5px solid #2a2a2a;
+  border-radius: 8px;
+  box-shadow: none;
+  -webkit-appearance: none;
+     -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  background: #181828;
+  color: #fff;
+  border-radius: 8px;
+  width: 18px;
+  height: 28px;
+  margin: 0;
+}
+
+h1 {
+  margin-left: 2.5rem;
+  margin-top: 2rem;
+}
+
+#form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+#form > div, .form-section {
+  width: 100%;
+  margin-bottom: 1.2rem;
+}
+
+h4 {
+  color: #fff;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+label {
+  color: #ccc;
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+input[type="number"], select {
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1.5px solid #2a2a2a;
+  background: #181828;
+  color: #fff;
+  font-size: 1rem;
+  transition: border 0.2s;
+  box-sizing: border-box;
+}
+
+.income-entry,
+.select-income-entry,
+.contrib-gap-period,
+.entry-yearly-status,
+.select-entry-yearly-status,
+.duration-erziehunsgberechtigt-standard,
+.erziehunsgberechtigt-standard-temp,
+.betreuungsgutschriften-container,
+.betreuungsgutschrfiten-container-template,
+.bvg-contrib-angestellt-inputs,
+.bvg-contrib-angestellt-template,
+.bvg-contrib-selbständig-inputs,
+.bvg-contrib-selbständig-template,
+.bvg-yield,
+.bvg-yield-template,
+.bvg-contrib-share,
+.bvg-contrib-share-template {
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid rgba(160, 132, 255, 0.10);
+}
+
+.erziehungsberechtigt-template-wrapper + .erziehungsberechtigt-template-wrapper {
+  margin-top: 1.5rem; /* Abstand nach Geschmack anpassen */
+}
+
+.info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: 8px;
+  border-radius: 50%;
+  background: #232336; /* dunkler, dezenter Hintergrund */
+  color: #a084ff;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: 1.5px solid #3a2a5d;
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+  position: relative;
+  vertical-align: middle;
+  user-select: none;
+}
+
+.info-icon:hover, .info-icon.active {
+  background: #2d2542;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(124,77,255,0.18);
+}
+
+/* Info-Box (Tooltip/Popover) */
+.info-box {
+  display: none;
+  position: absolute;
+  left: 35vw;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 320px;
+  max-width: 90vw;
+  background: #181828;
+  color: #fff;
+  border: 1.5px solid #a084ff;
+  border-radius: 10px;
+  padding: 1rem 1.4rem;
+  z-index: 9999;
+  font-size: 1.08rem;
+  box-shadow: 0 4px 24px rgba(124,77,255,0.13);
+  white-space: normal;
+  text-align: left;
+}
+
+.info-icon.active + .info-box {
+  display: block;
+}
+
+@media (max-width: 700px) {
+  .info-box {
+    min-width: 180px;
+    font-size: 0.95rem;
+    padding: 0.8rem 0.7rem;
+  }
+}
+
+/* --- Tiefer Schatten für Header-Menü (optional, falls du main.css nutzt, dort einfügen) --- */
+.main-header {
+  /* ...deine bisherigen Styles... */
+  box-shadow: 0 6px 32px 0 rgba(124,77,255,0.13), 0 1.5px 8px 0 rgba(0,0,0,0.13);
+  z-index: 10;
+}
+
+/* --- Tiefer Schatten für die Formular-Kachel --- */
+.altersvorsorge-card {
+  /* ...deine bisherigen Styles... */
+  box-shadow:
+    0 8px 32px 0 rgba(124,77,255,0.18),
+    0 2px 16px 0 rgba(0,0,0,0.22),
+    0 1.5px 8px 0 rgba(0,0,0,0.13);
+}
+
+input[type="number"]:focus, select:focus {
+  border: 1.5px solid #a084ff;
+  outline: none;
+}
+
+/* === Button-Styles (alle Buttons gleich) === */
+button[type="submit"], button[type="reset"], button, .ghost-btn {
+  width: 100%;
+  background: linear-gradient(90deg, #7c4dff 0%, #14092c 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.6rem;
+  font-size: 1rem;
+  margin: 0.5rem 0 0.5rem 0;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(124,77,255,0.10);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  display: block;
+}
+
+button[type="submit"]:hover, button[type="reset"]:hover, button:hover, .ghost-btn:hover {
+  background: linear-gradient(90deg, #a084ff 0%, #7c4dff 100%);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 16px rgba(124,77,255,0.18);
+}
+
+.button-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.2rem;
+  justify-content: flex-end;
+}
+
+/* === Responsive Anpassung === */
+@media (max-width: 800px) {
+  .altersvorsorge-card {
+    padding: 1.2rem 0.5rem 1.5rem 0.5rem;
+    max-width: 98vw;
+  }
+  h1 {
+    margin-left: 1rem;
+    margin-top: 1rem;
+  }
+}
+
+/* === Ergebnisse (Resultate) Bereich === */
+#results_section {
+  max-width: 700px;
+  margin: 2.5rem auto 0 auto;
+  background: rgba(255,255,255,0.04);
+  border: 2px solid rgba(124,77,255,0.13);
+  border-radius: 16px;
+  box-shadow: 0 0 14px rgba(124,77,255,0.10);
+  padding: 2rem 1.5rem;
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+#results_section h1, #results_section h3 {
+  color: #a084ff;
+  margin-bottom: 1rem;
+}
+
+#results_section ul {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+#results_section li {
+  margin-bottom: 0.7rem;
+  color: #eee;
+}
+
+/* === Scrollbar Styling === */
+::-webkit-scrollbar {
+  height: 6px;
+  width: 8px;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #7c4dff 0%, #181828 100%);
+  border-radius: 6px;
+  min-height: 30px;
+  min-width: 30px;
+  opacity: 0.5;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* === Kleine Animationen

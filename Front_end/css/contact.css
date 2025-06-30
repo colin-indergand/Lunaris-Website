@@ -1,139 +1,169 @@
 :root {
-  --deep-anthracite: #1f1f1f;
-  --dark-bg: #111;
-  --white: #ffffff;
+  --dark: #0d0c0f;
+  --violet: #6600cc;
+  --text: #ffffff;
+  --text-muted: #cccccc;
 }
 
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: Calibri, sans-serif;
+  box-sizing: border-box;
 }
 
 body {
-  background-color: var(--dark-bg);
-  color: var(--white);
-  display: flex;
-  justify-content: center;
-  padding: 4rem 1rem;
+  background: var(--dark);
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--text);
 }
 
-main {
-  width: 100%;
-  max-width: 700px;
+.contact-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 3rem;
+  padding: 3rem 2rem;
 }
 
-/* Titel mit mehr Abstand */
-#contact-title {
-  font-size: 3rem;
-  font-weight: bold;
-  color: var(--white);
-  margin-bottom: 4rem;
-  text-align: center;
-}
-
-/* Standort */
-
-#location-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin: 3rem 0;
+/* Globe Section */
+.globe-section {
   width: 100%;
-  max-width: 1000px;
-  gap: 2rem;
+  max-width: 700px;   /* vorher 500px */
+  height: 700px;       /* vorher 500px */
+  border: 1px solid var(--violet);
+  border-radius: 50%;
+  box-shadow: 0 0 30px var(--violet-light);
+  overflow: hidden;
 }
 
-#globeViz {
-  flex: 1;
-  height: 400px;
-  min-width: 300px;
+#globeChart {
+  width: 100%;
+  height: 100%;
 }
 
-#infoBox {
-  flex: 1;
+/* Form Section */
+.form-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 2rem;
-  background-color: var(--deep-anthracite);
-  border: 2px solid var(--white);
-  border-radius: 15px;
-  display: none; /* wird beim Klick eingeblendet */
-  color: var(--white);
-}
-
-#infoBox h2 {
-  margin-top: 0;
-}
-
-#infoBox p {
-  line-height: 1.6;
-}
-
-
-
-/* Rahmen um Eingabeformular */ 
-#contact {
-    border: 1px solid var(--white);
-    border-radius: 15px;
-}
-
-/* Abstand + Struktur */
-#contact-form {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-label {
-  font-weight: bold;
-  margin-bottom: 0.6rem;
-}
-
-input,
-textarea {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--white);
-  color: var(--white);
-  padding: 0.8rem 0.5rem;
-  font-size: 1rem;
-  width: 100%;
-  margin-top: 0.2rem;
-}
-
-textarea {
-  resize: vertical;
-  min-height: 150px;
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: #ccc;
-}
-
-/* Button ohne Hintergrund, größer, zentriert */
-#send-contact {
-  margin-top: 3rem;
-  padding: 1rem 2.5rem;
-  font-size: 1.2rem;
-  font-weight: bold;
-  border: 2px solid var(--white);
-  color: var(--white);
-  background: none;
   border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 1000px;  /* vorher 500px */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
-#send-contact:hover {
-  color: var(--dark-bg);
-  background-color: var(--white);
+
+.form-section h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+form label {
+  font-weight: bold;
+}
+
+form input,
+form textarea {
+  padding: 0.8rem;
+  border: 1px solid var(--violet);
+  background: #111;
+  color: var(--text);
+  border-radius: 6px;
+  width: 100%;
+}
+
+form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.popup {
+  position: fixed;    
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  background-color: rgba(20, 20, 20, 0.95);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid var(--violet);
+  box-shadow: 0 0 20px var(--violet-light);
+  color: white;
+  z-index: 99999;
+  width: 320px;
+}
+
+
+.popup-close {
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #aa00ff;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.popup.hidden {
+  display: none;
+}
+
+form button[type="submit"] {
+  background-color: var(--violet);
+  color: white;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(170, 0, 255, 0.3);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+form button[type="submit"]:hover {
+  background-color: #cc00ff;
+}
+
+.contact-info {
+  text-align: center;
+  margin-top: 1rem;
+  padding-bottom: 1.5rem;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.contact-info a {
+  color: var(--violet-light);
+  text-decoration: none;
+  margin: 0 0.5rem;
+}
+
+.contact-info .social-icons img {
+  width: 24px;
+  height: 24px;
+  margin: 0 0.4rem;
+  vertical-align: middle;
+}
+
+.social-icons {
+  margin-top: 0.5rem;
+}
+
+.social-icons a {
+  margin: 0 0.6rem;
+  color: var(--violet-light);
+  font-size: 1.4rem;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.social-icons a:hover {
+  color: white;
 }

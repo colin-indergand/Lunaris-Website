@@ -180,6 +180,10 @@ function toggleChildcareCredits(selectElement) {
     if (oldValue && dropdown.querySelector(`option[value="${oldValue}"]`)) {
       dropdown.value = oldValue;    
     }
+    // Automatisch Template erzeugen, wenn Wert gesetzt
+    if (parseInt(dropdown.value) > 0) {
+      createChildcareResponsibilityTemplates(dropdown);
+    }
   }
 }
 
@@ -190,35 +194,33 @@ function createChildcareResponsibilityTemplates(selectElement) {
   const container = document.getElementById('block_erziehunsgberechtigt');
   const template = document.querySelector('.erziehungsberechtigt-template');
 
+  // Entferne alle bisherigen Wrapper
   container.querySelectorAll('.erziehungsberechtigt-template-wrapper').forEach(e => e.remove());
 
+  // Für jedes Kind einen Block erzeugen (auch bei count == 1)
   for (let i = 0; i < count; i++) {
     const clone = template.content.cloneNode(true);
     const toggler = clone.querySelector('.is-erziehungsberechtigt');
-
     const label = clone.querySelector('label');
     if (label) {
       label.textContent = `Durchgehend Erziehungsberechtigt für ${i + 1}. Kind`;
     }
-    
     if (toggler) {
       toggler.value = "Ja";
-
       toggler.addEventListener('change', function() {
         toggleErziehungsberechtigt(this);
         toggleErziehungsberechtigtBeide(this);
-      })
-
+      });
       toggleErziehungsberechtigt(toggler);
       toggleErziehungsberechtigtBeide(toggler);
     }
-
     const wrapper = clone.querySelector('.erziehungsberechtigt-template-wrapper');
     if (wrapper) wrapper.setAttribute('data-child', i);
-  
+
     container.appendChild(clone);
-  } 
+  }
 }
+
 
 // Erziehungsberechtigt: Einzelne Zeilen einblenden
 function toggleErziehungsberechtigt(selectElement) {
@@ -713,6 +715,26 @@ document.getElementById("form").addEventListener("submit", async function (e) {
 });
 
 
+function toggleInfoBox(icon) {
+  // Schließe alle anderen Info-Boxen
+  document.querySelectorAll('.info-icon.active').forEach(function(el) {
+    if (el !== icon) el.classList.remove('active');
+  });
+  // Toggle aktuelle Box
+  icon.classList.toggle('active');
+}
+
+// Optional: Schließen beim Klick außerhalb
+document.addEventListener('click', function(e) {
+  if (!e.target.classList.contains('info-icon')) {
+    document.querySelectorAll('.info-icon.active').forEach(function(el) {
+      el.classList.remove('active');
+    });
+  }
+});
+
+
+
 // Ausführung und Hinzufügen von Dropdowns
 window.addEventListener('DOMContentLoaded', () => {
   createDropdown('vintage_vintage', 1900, 2025);
@@ -745,5 +767,12 @@ window.addEventListener('DOMContentLoaded', () => {
   bvgSelbstDropdowns.forEach(dropdown => {
     toggleBvgcontribselbständig(dropdown);
   });
+
+  const hasChildren = document.getElementById('has_children');
+  const childrenCount = document.getElementById('amount_children_childcare_credits');
+  if (hasChildren && childrenCount && hasChildren.value === 'Ja' && parseInt(childrenCount.value) > 0) {
+    createChildcareResponsibilityTemplates(childrenCount);
+  }
+
 });
 

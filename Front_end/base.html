@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Lunaris-Global{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header class="main-header">
+        <a href="{{ url_for('index') }}" class="logo-link">
+            <img src="{{ url_for('static', filename='images/lunaris_schriftzug_weiss.png') }}" alt="Lunaris Global" class="logo-image" />
+        </a>
+        <nav class="main-nav" id="nav">
+            <a href="{{ url_for('index') }}" class="{% if active_page == 'index' %}active{% endif %}">Lunaris</a>
+            <a href="{{ url_for('about') }}" class="{% if request.path == '/about' %}active{% endif %}">Über uns</a>
+            <a href="{{ url_for('education') }}" class="{% if request.path == '/education' %}active{% endif %}">Education</a>
+            <a href="{{ url_for('news') }}" class="{% if request.path == '/news' %}active{% endif %}">News</a>
+            <a href="{{ url_for('altersvorsorge') }}" class="{% if request.path == '/altersvorsorge' %}active{% endif %}">Altersvorsorge</a>
+            <a href="{{ url_for('contact') }}" class="{% if request.path == '/contact' %}active{% endif %}">Kontakt</a>
+        </nav>
+        <div class="header-right">
+            <select class="lang-select" onchange="switchLanguage(this)">
+                <option value="/de/index.html" selected>DE</option>
+                <option value="/en/index.html">EN</option>
+            </select>
+            <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </header>
+    <div class="mobile-menu-overlay" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <select class="lang-select">
+                <option value="/de/index.html" selected>DE</option>
+                <option value="/en/index.html">EN</option>
+            </select>
+            <button class="close-btn" onclick="toggleMobileMenu()">&times;</button>
+        </div>
+        <nav class="mobile-nav">
+            <a href="{{ url_for('index') }}" class="{% if active_page == 'index' %}active{% endif %}">Lunaris</a>
+            <a href="{{ url_for('about') }}" class="{% if request.path == '/about' %}active{% endif %}">Über uns</a>
+            <a href="{{ url_for('education') }}" class="{% if request.path == '/education' %}active{% endif %}">Education</a>
+            <a href="{{ url_for('news') }}" class="{% if request.path == '/news' %}active{% endif %}">News</a>
+            <a href="{{ url_for('altersvorsorge') }}" class="{% if request.path == '/altersvorsorge' %}active{% endif %}">Altersvorsorge</a>
+            <a href="{{ url_for('contact') }}" class="{% if request.path == '/contact' %}active{% endif %}">Kontakt</a>
+        </nav>
+    </div>
+    <main class="layout-alt">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-left">
+            <img src="{{ url_for('static', filename='images/lunaris_logo_schwarz.png') }}" alt="Lunaris Logo" class="footer-logo">
+            <div class="footer-contact-box">
+                <div class="footer-social-icons">
+                    <a href="mailto:info@lunaris-global.com" title="E-Mail"><i class="fas fa-envelope"></i></a>
+                    <a href="#" title="X (Twitter)"><i class="fab fa-x-twitter"></i></a>
+                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-center">
+            <div class="footer-title">LUNARIS GLOBAL</div>
+            <div class="footer-sub">stability in spending, trust in technology</div>
+        </div>
+
+        <div class="footer-right">
+            <div class="footer-links-col">
+            <a href="#">AGB</a>
+            <a href="#">Impressum</a>
+            </div>
+            <div class="footer-links-col">
+            <a href="#">Datenschutz</a>
+            <a href="#">Nutzungsbedingungen</a>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
+
+
+
+
+
+
+

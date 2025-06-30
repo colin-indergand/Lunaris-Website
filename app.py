@@ -1,4 +1,14 @@
 from flask import Flask, request, render_template
+from flask import request
+
+import json
+
+with open("Front_end/posts/posts.json", encoding="utf-8") as f:
+    posts = json.load(f)
+
+# Nur die letzten drei (neueste zuerst)
+latest_posts = posts[:3]
+
 
 from Back_end.Altersvorsorge_tool.Pension_Calculator import avg_saving_yield
 from Back_end.Altersvorsorge_tool.Pension_Calculator import avg_inflation
@@ -53,9 +63,17 @@ from Back_end.Altersvorsorge_tool.Pension_Calculator import calculate_saving_rat
 app = Flask(__name__, 
             template_folder="Front_end", static_folder="Front_end")
 
+@app.context_processor 
+def inject_request():
+    return dict(request=request)
+
 @app.route("/")
 def index():
-    return render_template("index.html")
+    with open("Front_end/posts/posts.json", encoding="utf-8") as f:
+        posts = json.load(f)
+    latest_posts = posts[:3]  # oder posts[-3:] wenn neuste hinten
+    return render_template("index.html", posts=latest_posts, active_page="index")
+
 
 @app.route("/about")
 def about():
@@ -304,6 +322,7 @@ def altersvorsorge():
         print_vintage = calculate_vintage(web_vintage_data)
         print_income_data = calculate_income(web_income_data)
         print_average_income = average_income(print_income_data)
+
 
         print_contrib_data, print_contrib_years = calculate_contrib_years(print_income_data, web_contrib_gap_years_data, web_contrib_gap_data)
 

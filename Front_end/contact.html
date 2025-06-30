@@ -1,63 +1,63 @@
-<!DOCTYPE html>
-<html lang="DE">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lunaris-Contact</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/contact.css') }}">
-</head>
+{% extends "base.html" %}
+{% block title %}Lunaris - Kontakt{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/contact.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% endblock %}
+{% block content %}
+<main class="contact-wrapper">
+  <section class="globe-section">
+    <div id="globeChart"></div>
+  </section>
 
-<body>
-    <main>           
-        <h1 id="contact-title">Lunaris-Kontakt</h1>
+  <div id="popup" class="popup hidden">
+    <button id="popup-close" class="popup-close">X</button>
+    <h3 id="popup-title"></h3>
+    <p id="popup-office"></p>
+    <p id="popup-address"></p>
+    <p id="popup-email"></p>
+    <p id="popup-phone"></p>
+  </div>
 
-        <div id="location-wrapper">
-        <div id="infoBox">
-            <h2>Standort: Zürich</h2>
-            <p>
-            xxx<br>
-            xxx Zürich<br>
-            Schweiz<br><br>
-            <strong>E-Mail:</strong><br>
-            contact@lunaris.global
-            </p>
-        </div>
-        <div id="globeViz"></div>
-        </div>
 
-        <form id="contact">
-            <div class="form-row">
-                <label for="contact_firstname">Vorname:</label>
-                <input id="contact_firstname" placeholder="Max" required/>
-            </div>
+  <section class="form-section">
+    <h2>Kontaktformular</h2>
+    <form id="contactForm">
+      <label for="firstname">Vorname</label>
+      <input type="text" id="firstname" required placeholder="Max" />
 
-            <div class="form-row">
-                <label for="contact_surname">Nachname:</label>
-                <input id="contact_surname" placeholder="Mustermann" required/>
-            </div>
+      <label for="lastname">Nachname</label>
+      <input type="text" id="lastname" required placeholder="Mustermann" />
 
-        
-            <div class="form-row">
-                <label for="contact_email">E-Mail:</label>
-                <input id="contact_email" placeholder="max.mustermann@xxxx.com" required/>
-            </div>
+      <label for="email">E-Mail</label>
+      <input type="email" id="email" required placeholder="max@example.com" />
 
-            <div class="form-row">
-                <label for="contact_tel">Telefon-Nr.</label>
-                <input id="contact_tel" placeholder="+41 xx xxx xx xx"/>
-            </div>
+      <label for="phone">Telefon-Nr.</label>
+      <input type="text" id="phone" placeholder="+xx xx xxx xx xx" />
 
-            <div class="form-row-full-width">
-                <label for="contact_message">Nachricht:</label>
-                <textarea id="contact_message" placeholder="Ihre Nachricht:"></textarea>
-            </div>
+      <label for="message">Nachricht</label>
+      <textarea id="message" required placeholder="Ihre Nachricht..."></textarea>
 
-            <button type="submit" id="send_contact">Absenden</button>
-        </form>
-    
-    </main>
-<script src="https://unpkg.com/three"></script>
-<script src="https://unpkg.com/globe.gl"></script>
+      <button type="submit">Absenden</button>
+    </form>
+  </section>
+
+  <div class="contact-info">
+    <p>Kontakt: <a href="mailto:info@lunaris-global.com">info@lunaris-global.com</a></p>
+    <div class="social-icons">
+      <a href="#" title="X"><i class="fab fa-x-twitter"></i></a>
+      <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="#" title="TikTok"><i class="fab fa-tiktok"></i></a>
+    </div>
+  </div>
+</main>
+
+<!-- Scripts -->
+<script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/map-geodata.js"></script>
 <script src="{{ url_for('static', filename='js/contact.js') }}"></script>
-</body>
-</html>
+{% endblock %}

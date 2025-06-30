@@ -1,52 +1,9 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta name="viewport" content="width=devide-width, initial-scale=1.0">
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <title>Lunaris-Global</title>
-</head>
-<body>
-
- <header class="main-header">
-    <a href="main" class="logo-link">
-      <img src="{{ url_for('static', filename='images/lunaris_schriftzug_weiss.png') }}" alt="Lunaris Global" class="logo-image" />
-    </a>
-
-    <nav class="main-nav" id="nav">
-        <a href="{{ url_for('index') }}">Lunaris</a>
-        <a href="{{ url_for('about') }}">Über uns</a>
-        <a href="{{ url_for('education') }}">Education</a>
-        <a href="{{ url_for('news') }}">News</a>
-        <a href="{{ url_for('altersvorsorge') }}">Altersvorsorge</a>
-        <a href="{{ url_for('contact') }}">Kontakt</a>
-    </nav>
-
-    <div class="header-right">
-      <select class="lang-select" onchange="switchLanguage(this)">
-        <option value="/de/index.html" selected>DE</option>
-        <option value="/en/index.html">EN</option>
-      </select>
-      <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
-    </div>
-  </header>
-
-  <div class="mobile-menu-overlay" id="mobileMenu">
-    <div class="mobile-menu-header">
-      <select class="lang-select">
-        <option value="/de/index.html" selected>DE</option>
-        <option value="/en/index.html">EN</option>
-      </select>
-      <button class="close-btn" onclick="toggleMobileMenu()">&times;</button>
-    </div>
-    <nav class="mobile-nav">
-      <a href="#">Lunaris</a>
-      <a href="#">Über uns</a>
-      <a href="#">Education</a>
-      <a href="#">Daten</a>
-      <a href="#">Kontakt</a>
-    </nav>
-  </div>
+{% extends "base.html" %}
+{% block title %}Lunaris-Global{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+{% endblock %}
+{% block content %}
 
   <main class="layout-alt">
     <section class="hero">
@@ -93,19 +50,19 @@
     <div class="data-grid">
       <div class="data-box">
         <h3>🌐 Weltweite Nutzerkonten</h3>
-        <p><strong>123'456+</strong></p>
+        <p><strong id="usersCount">0</strong></p>
       </div>
       <div class="data-box">
         <h3>💰 Lunaris-Marktkapitalisierung</h3>
-        <p><strong>$7'453'125'124</strong></p>
+        <p><strong id="marketCap">0</strong></p>
       </div>
       <div class="data-box">
         <h3>🔄 Transaktionen Total</h3>
-        <p><strong>12'345'678'000</strong></p>
+        <p><strong id="txTotal">0</strong></p>
       </div>
       <div class="data-box">
         <h3>⚡ Transaktionen pro Sekunde</h3>
-        <p><strong>12'320 TPS</strong></p>
+        <p><strong id="tps">0</strong></p>
       </div>
     </div>
 
@@ -113,23 +70,16 @@
 
     <!-- Neue freie Blog-Sektion -->
     <section class="blog-preview">
-      <h2>Aktuelle News</h2>
-      <div class="blog-grid">
-        <div class="blog-card">
-          <h3>Titel 1</h3>
-          <p>Kurze Beschreibung zum Artikel... (Platzhalter)</p>
+        <h2>Aktuelle News</h2>
+        <div class="blog-grid">
+            {% for post in posts %}
+                <div class="blog-card">
+                    <h3>{{ post.title }}</h3>
+                    <p>{{ post.überschrift }}</p>
+                </div>
+            {% endfor %}
         </div>
-        <div class="blog-card">
-          <h3>Titel 2</h3>
-          <p>Kurze Beschreibung zum Artikel... (Platzhalter)</p>
-        </div>
-        <div class="blog-card">
-          <h3>Titel 3</h3>
-          <p>Kurze Beschreibung zum Artikel... (Platzhalter)</p>
-        </div>
-      </div>
     </section>
-
 
     <hr class="section-divider" />
 
@@ -138,59 +88,33 @@
       <h2 class="map-title">Lunaris-Aktivität</h2>
       <div class="map-container">
         <div id="mapdiv"></div>
-
-        <div id="countryInfoPanel" class="info-panel hidden">
-          <h3 id="countryName">Länderdaten</h3>
-          <ul>
-            <li><strong>Einwohner:</strong> <span id="pop">-</span></li>
-            <li><strong>Jährliche Inflationsrate:</strong> <span id="inflation">-</span></li>
-            <li><strong>BIP:</strong> <span id="gdp">-</span></li>
-            <li><strong>Lunaris-Konten:</strong> <span id="users">-</span></li>
-            <li><strong>Lunaris-Volumen:</strong> <span id="volume">-</span></li>
-            <li><strong>Anzahl Partner:</strong> <span id="partners">-</span></li>
-            <li><strong>Lunaris Integration::</strong> <span id="penetration">-</span></li>
-          </ul>
-        </div>
+          <div id="countryInfoPanel" class="info-panel hidden">
+            <h3 id="countryName">Länderdaten</h3>
+            <ul>
+              <li><strong>Einwohner:</strong> <span id="pop">-</span></li>
+              <li><strong>BIP:</strong> <span id="gdp">-</span></li>
+              <li><strong>Inflationsrate:</strong> <span id="inflation">-</span></li>
+              <li><strong>Bankkonten (% Erw.):</strong> <span id="accounts">-</span></li>
+              <li><strong>Arbeitslosenquote:</strong> <span id="unemployment">-</span></li>
+            </ul>
+          </div>
       </div>
     </div>
 
   </main>
 
-  <footer class="footer">
-    <div class="footer-left">
-      <img src="{{ url_for('static', filename='images/lunaris_logo_schwarz.png') }}" alt="Lunaris Logo" class="footer-logo"/>
-      <div class="social-icons">
-        <a href="#">X</a>
-        <a href="#">IG</a>
-        <a href="#">TT</a>
-        <a href="#">MAIL</a>
-      </div>
-    </div>
-
-    <div class="footer-center">
-      <div class="footer-title">LUNARIS GLOBAL</div>
-      <div class="footer-sub">stability in spending, trust in technology</div>
-    </div>
-
-    <div class="footer-right">
-      <div class="footer-links-col">
-        <a href="#">AGB</a>
-        <a href="#">Impressum</a>
-      </div>
-      <div class="footer-links-col">
-        <a href="#">Datenschutz</a>
-        <a href="#">Nutzungsbedingungen</a>
-      </div>
-    </div>
-  </footer>
 
 
 <!-- AmCharts Bibliotheken -->
+<!-- ... -->
+<script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
 <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
 <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
 <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
 <script src="https://cdn.amcharts.com/lib/5/lang/de_DE.js"></script>
+<script>
+  const dataUrl = "{{ url_for('static', filename='daten/data.json') }}";
+</script>
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
-</body>
-</html>
+{% endblock %}

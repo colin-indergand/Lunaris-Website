@@ -1,374 +1,408 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lunaris-Rententool</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/altersvorsorge.css') }}">
-</head>
-<body>
-    <h1>Rententool:</h1>
-    <br>
 
-    <!-- RENTENTOOL INPUT FORMULAR-->
-    <form id="form" method="POST" action="/altersvorsorge">
+{% extends "base.html" %}
+{% block title %}Lunaris - Altersvorsorge{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/altersvorsorge.css') }}">
+{% endblock %}
+{% block content %}
 
-        <div id="vintage">
-            <h4>Jahrgang:</h4>
-            <label for="vintage_vintage">Geben Sie Ihren Jahrgang ein:</label>
-            <select name="return-vintage" id="vintage_vintage"></select><br><br>
-        </div>
+<main>
+    <div class="intro-section">
+        <h1 class="main-title">Lunaris Rententool</h1>
+        <p class="intro-text">
+            Das Rententool berechnet Ihnen anhand Ihrer Angaben eine realistische monatliche Rente für die Schweiz. Je genauer und vollständiger Ihre Eingaben, desto präziser das Ergebnis. Zusätzlich erhalten Sie Sparziele, um 100% Ihres letzten Einkommens oder eine Wunsch-Rente zu erreichen. <br>
+            Simulieren Sie verschiedene Szenarien und erkennen Sie, wie sich frühes Anlegen und Investieren auf Ihre Altersvorsorge auswirken.
+        </p>
+    </div>
 
-        <!-- Income-Block (Vorlage) -->
-        <div id="income_blocks">
-            <h4>Einkommensdaten:</h4>
-            <div class="income-entry">
-                <label for="income_start_age">Geben Sie Ihr Einkommen pro Altersklasse ein:</label>
-                <select name="return-income-start-age[]" id="income_start_age" class="income_start_age"></select>
+    <div class="altersvorsorge-card">
+        <!-- RENTENTOOL INPUT FORMULAR-->
+        <form id="form" method="POST" action="/altersvorsorge">
 
-                <label for="income_end_age">Bis Alter:</label>
-                <select name="return-income-end-age[]" id="income_end_age" class="income_end_age"></select>
-
-                <label for="income_income">Einkommen:</label>
-                <input name="return-income-income[]" type="number" id="income_income" class="income_income" placeholder="CHF">
-
-                <label for="income_status">Status:</label>
-                <select name="return-income-status[]" id="income_status" class="income_select" onchange="addBvgContribField(); toggleVermoegen(this)">
-                    <option value="income_status_angestellt">angestellt:</option>
-                    <option value="income_status_selbständig">selbständig:</option>
-                    <option value="income_status_nicht_erwerbstätig">nicht erwerbstätig:</option>
-                </select>
-
-                <div class="select_income_vermögen_data" style="display: none;">
-                    <label for="income_vermögen" class="income-box">Vermögen:</label>
-                    <input type="number" name="return-income-vermögen[]" id="income_vermögen" placeholder="CHF">     
-                </div>
+            <div id="vintage">
+                <h4>
+                    Jahrgang:
+                    <span class="info-icon" tabindex="0" onclick="toggleInfoBox(this)">i</span>
+                    <span class="info-box">
+                        Bitte geben Sie Ihr Geburtsjahr an. Diese Eingabe ist notwendig, um die korrekte Berechnung der Rente zu machen.
+                    </span>
+                </h4>
+                <label for="vintage_vintage">Geben Sie Ihren Jahrgang ein:</label>
+                <select name="return-vintage" id="vintage_vintage"></select><br><br>
             </div>
 
-            <template id="income-entry-template"> 
-                <div class="select-income-entry">
-                    <label for="select_income_start_age">Geben Sie Ihr Einkommen pro Altersklasse ein:</label>
-                    <select name="return-income-start-age[]" id="select_income_start_age" class="income_start_age" ></select>
-    
-                    <label for="select_income_end_age">Bis Alter:</label>
-                    <select name="return-income-end-age[]" id="select_income_end_age"  class="income_end_age" ></select>
+            <!-- Income-Block (Vorlage) -->
+            <div id="income_blocks">
+                <h4>
+                    Einkommensdaten:
+                    <span class="info-icon" tabindex="0" onclick="toggleInfoBox(this)">i</span>
+                    <span class="info-box">
+                        Geben Sie die Zeitdauer eines Einkommens an. Bspw. von 18 Jahren bis 21 Jahren 15'000 CHF Einkommen als Angestellter. Desto genauer Sie es angeben, desto besser wird Ihre Rentenschätzung. Sie können auch ähnliche Einkommen zusammennehmen, um weniger Einträge zu haben.
+                    </span>
+                </h4>
+                <div class="income-entry">
+                    <label for="income_start_age">Geben Sie Ihr Einkommen pro Altersklasse ein:</label>
+                    <select name="return-income-start-age[]" id="income_start_age" class="income_start_age"></select>
 
-                    <label for="select_income_income">Einkommen:</label>
-                    <input name="return-income-income[]" type="number" id="select_income_income" class="income_income" placeholder="CHF">
-    
-                    <label for="select_income_status">Status:</label>
-                    <select name="return-income-status[]" id="select_income_status" class="income_select" onclick="addBvgContribField(); toggleVermoegen(this)">
+                    <label for="income_end_age">Bis Alter:</label>
+                    <select name="return-income-end-age[]" id="income_end_age" class="income_end_age"></select>
+
+                    <label for="income_income">Einkommen:</label>
+                    <input name="return-income-income[]" type="number" id="income_income" class="income_income" placeholder="CHF">
+
+                    <label for="income_status">Status:</label>
+                    <select name="return-income-status[]" id="income_status" class="income_select" onchange="addBvgContribField(); toggleVermoegen(this)">
                         <option value="income_status_angestellt">angestellt:</option>
                         <option value="income_status_selbständig">selbständig:</option>
                         <option value="income_status_nicht_erwerbstätig">nicht erwerbstätig:</option>
                     </select>
 
                     <div class="select_income_vermögen_data" style="display: none;">
-                        <label for="select_income_vermögen" class="income-box">Vermögen:</label>
-                        <input type="number" name="return-income-vermögen[]" id="select_income_vermögen" placeholder="CHF">    
+                        <label for="income_vermögen" class="income-box">Vermögen:</label>
+                        <input type="number" name="return-income-vermögen[]" id="income_vermögen" placeholder="CHF">     
                     </div>
                 </div>
-            </template>
-        </div>
 
-        <button type="button" onclick="addIncomeBlock()">Hinzufügen</button>
-        <button type="button" onclick="removeIncomeBlock()">Entfernen</button><p></p>
-
-        <!-- Beitragslücken -->
-
-        <div id="contrib_gap_years">
-            <h4>Beitragslücken:</h4>
-
-            <div class="contrib-gap-entry">
-                <label for="contrib_gap_total_years">Wie viele Jahre Beitragslücken hatten Sie?</label>
-                <select name="return-contrib-gap-years" id="contrib_gap_total_years" class="select-contrib-gap-total-years" onchange="toggleContribData(this)"></select>
-            </div>
-
-            <div id="contrib_gap_period_container">
-                <div class="contrib-gap-period" style="display: none;">
-                    <label for="contrib_gap_start_age"  class="contrib_gap_start_age">Von Alter:</label>
-                    <select name="return-start-age[]" id="contrib_gap_start_age" class="select-contrib-gap-start-age"></select>
-
-                    <label for="contrib_gap_end_age" class="contrib_gap_end_age">Bis Alter:</label>
-                    <select name="return-end-age[]" id="contrib_gap_end_age" class="select-contrib-gap-end-age"></select>
-                </div>
-            </div>
-            
-            <template id="contrib_gap_entry_template">
-                <div class="contrib-gap-period">
-                    <label class="contrib-gap-start-age">Von Alter:</label>
-                    <select name="return-start-age[]" class="select-contrib-gap-start-age"></select>
-                    
-                    <label class="contrib-gap-end-age">Bis Alter:</label>
-                    <select name="return-end-age[]" class="select-contrib-gap-end-age"></select>
-                </div>
-            </template>
-        </div>
-
-        <button type="button" class="contrib-gap-add-button" style="display: none;" onclick="addContribYears()">Hinzufügen</button>
-        <button type="button" class="contrib-gap-remove-button" style="display: none;" onclick="removeContribYears()">Entfernen</button>
-
-
-        <!-- Partner - Yearly_Status -->
-
-        <div id="yearly_status_data">
-            <h4>Status:</h4>
-
-            <div class="entry-yearly-status">
-                <label class="yearly-status-start-age">Von Alter:</label>
-                <select name="return-yearly-status-data-start-age[]" id="yearly-status-data-start-age" class="yearly-status-start-age"></select>
-
-                <label class="yearly-status-end-age">Bis Alter:</label>
-                <select name="return-yearly-status-data-end-age[]" id="yearly-status-data-end-age" class="yearly-staus-end-age"></select>
-
-                <label class="yearly-status-income">Einkommen:</label>
-                <input name="return-yearly-status-data-income[]" class="yearly-status-income" placeholder="CHF"></input>
-            </div>
-
-            <template id="yearly-status-data-template">
-                <div class="select-entry-yearly-status">
-                    <label for="yearly_status_data_start_age" class="select-yearly-status-start-age">Von Alter:</label>
-                    <select name="return-yearly-status-data-start-age[]" id="yearly_status_data_start_age" class="select-yearly-status-start-age"></select>
-
-                    <label for="yearly_status_data_end_age" class="select-yearly-status-end-age">Bis Alter:</label>
-                    <select name="return-yearly-status-data-end-age[]" id="yearly_status_data_end_age" class="select-yearly-status-end-age"></select>
-
-                    <label for="yearly_status_income" class="select-yearly-status-income">Einkommen:</label>
-                    <input name="return-yearly-status-data-income[]" id="yearly_satus_income" class="select-yearly-status-income" placeholder="CHF"></input>
-                </div>
-            </template>
-        </div>
-
-        <button type="button" class="yearly-status-add-button" onclick="addYearlyStatus()">Hinzufügen</button>
-        <button type="button" class="yearly-status-remove-button" onclick="removeYearlyStatus()">Entfernen</button>
+                <template id="income-entry-template"> 
+                    <div class="select-income-entry">
+                        <label for="select_income_start_age">Geben Sie Ihr Einkommen pro Altersklasse ein:</label>
+                        <select name="return-income-start-age[]" id="select_income_start_age" class="income_start_age" ></select>
         
-        <!-- Erziehungsgutschriften -->
+                        <label for="select_income_end_age">Bis Alter:</label>
+                        <select name="return-income-end-age[]" id="select_income_end_age"  class="income_end_age" ></select>
 
-        <div id="childcare_credits_data">
-            <h4>Erziehungsgutschriften:</h4>
+                        <label for="select_income_income">Einkommen:</label>
+                        <input name="return-income-income[]" type="number" id="select_income_income" class="income_income" placeholder="CHF">
+        
+                        <label for="select_income_status">Status:</label>
+                        <select name="return-income-status[]" id="select_income_status" class="income_select" onclick="addBvgContribField(); toggleVermoegen(this)">
+                            <option value="income_status_angestellt">angestellt:</option>
+                            <option value="income_status_selbständig">selbständig:</option>
+                            <option value="income_status_nicht_erwerbstätig">nicht erwerbstätig:</option>
+                        </select>
 
-            <div id="childcare_credit">
-                <label for="has_children" class="has_children">Haben Sie Kinder?</label>
-                <select name="return-has-children" id="has_children" class="has-children" onchange="toggleChildcareCredits(this)">
-                    <option value="Nein">Nein</option>
-                    <option value="Ja">Ja</option>
-                </select>
-            </div>
-
-            <div class="childcare-credits" id=children_count_block style="display: none;">
-                <label for="amount_children_childcare_credits" class="num-children-childcare-credits">Anzahl Kinder</label>
-                <select name="return-amount-children-childcare-credits" class="select-num-children-childcare-credits" id="amount_children_childcare_credits" onchange="createChildcareVintage(this); createChildcareResponsibilityTemplates(this)"></select>         
-            </div>
-
-            <br>
-
-            <div id="child_year_block" style="display: none;">
-                <template class="child-template">
-                    <div class="childcare-entry" >
-                        <label></label>
-                        <select name="return-vintage-children[]" class="vintage-children"></select><br>
+                        <div class="select_income_vermögen_data" style="display: none;">
+                            <label for="select_income_vermögen" class="income-box">Vermögen:</label>
+                            <input type="number" name="return-income-vermögen[]" id="select_income_vermögen" placeholder="CHF">    
+                        </div>
                     </div>
                 </template>
             </div>
-            </br>   
-            <div id="block_erziehunsgberechtigt">
-                <template class="erziehungsberechtigt-template">
-                    <div class="erziehungsberechtigt-template-wrapper">
 
-                        <div class="search-erziehungsberechtigt">
-                            <label class="is-erziehungsberechtigt"></label>
-                            <select name="return-is-erziehungsberechtigt[]" class="is-erziehungsberechtigt" onchange=" toggleErziehungsberechtigt(this); toggleErziehungsberechtigtBeide(this)">
-                                <option value="Ja">Ja</option>
-                                <option value="Nein">Nein</option>
-                            </select>
+            <button type="button" onclick="addIncomeBlock()">Hinzufügen</button>
+            <button type="button" onclick="removeIncomeBlock()">Entfernen</button><p></p>
+
+            <!-- Beitragslücken -->
+
+            <div id="contrib_gap_years">
+                <h4>
+                    Beitragslücken:
+                    <span class="info-icon" tabindex="0" onclick="toggleInfoBox(this)">i</span>
+                    <span class="info-box">
+                        Geben Sie an, wie viele Beitragslücken Sie hatten. (Gar keine AHV-Beiträge bezahlt) und von welchem bis welchem Alter sie diese hatten. Bspw. von 22-22 Jahre 1 Jahr Beitragslücke.
+                    </span>
+                </h4>
+
+                <div class="contrib-gap-entry">
+                    <label for="contrib_gap_total_years">Wie viele Jahre Beitragslücken hatten Sie?</label>
+                    <select name="return-contrib-gap-years" id="contrib_gap_total_years" class="select-contrib-gap-total-years" onchange="toggleContribData(this)"></select>
+                </div>
+
+                <div id="contrib_gap_period_container">
+                    <div class="contrib-gap-period" style="display: none;">
+                        <label for="contrib_gap_start_age"  class="contrib_gap_start_age">Von Alter:</label>
+                        <select name="return-start-age[]" id="contrib_gap_start_age" class="select-contrib-gap-start-age"></select>
+
+                        <label for="contrib_gap_end_age" class="contrib_gap_end_age">Bis Alter:</label>
+                        <select name="return-end-age[]" id="contrib_gap_end_age" class="select-contrib-gap-end-age"></select>
+                    </div>
+                </div>
+                
+                <template id="contrib_gap_entry_template">
+                    <div class="contrib-gap-period">
+                        <label class="contrib-gap-start-age">Von Alter:</label>
+                        <select name="return-start-age[]" class="select-contrib-gap-start-age"></select>
+                        
+                        <label class="contrib-gap-end-age">Bis Alter:</label>
+                        <select name="return-end-age[]" class="select-contrib-gap-end-age"></select>
+                    </div>
+                </template>
+            </div>
+
+            <button type="button" class="contrib-gap-add-button" style="display: none;" onclick="addContribYears()">Hinzufügen</button>
+            <button type="button" class="contrib-gap-remove-button" style="display: none;" onclick="removeContribYears()">Entfernen</button>
+
+
+            <!-- Partner - Yearly_Status -->
+
+            <div id="yearly_status_data">
+                <h4>
+                    Status:
+                    <span class="info-icon" tabindex="0" onclick="toggleInfoBox(this)">i</span>
+                    <span class="info-box">
+                        Geben Sie an, wann Sie verheiratet waren und das Einkommen des Partners. Desto detaillierter Sie die Einkommen angeben, desto genauer wird die Rentenberechnung. Sie können ähnliche Einkommen zusammenfassen, um weniger Einträge zu haben.
+                    </span>
+                </h4>
+
+                <div class="entry-yearly-status">
+                    <label class="yearly-status-start-age">Von Alter:</label>
+                    <select name="return-yearly-status-data-start-age[]" id="yearly-status-data-start-age" class="yearly-status-start-age"></select>
+
+                    <label class="yearly-status-end-age">Bis Alter:</label>
+                    <select name="return-yearly-status-data-end-age[]" id="yearly-status-data-end-age" class="yearly-staus-end-age"></select>
+
+                    <label class="yearly-status-income">Einkommen:</label>
+                    <input type="number" name="return-yearly-status-data-income[]" class="yearly-status-income" placeholder="CHF"></input>
+                </div>
+
+                <template id="yearly-status-data-template">
+                    <div class="select-entry-yearly-status">
+                        <label for="yearly_status_data_start_age" class="select-yearly-status-start-age">Von Alter:</label>
+                        <select name="return-yearly-status-data-start-age[]" id="yearly_status_data_start_age" class="select-yearly-status-start-age"></select>
+
+                        <label for="yearly_status_data_end_age" class="select-yearly-status-end-age">Bis Alter:</label>
+                        <select name="return-yearly-status-data-end-age[]" id="yearly_status_data_end_age" class="select-yearly-status-end-age"></select>
+
+                        <label for="yearly_status_income" class="select-yearly-status-income">Einkommen:</label>
+                        <input type="number" name="return-yearly-status-data-income[]" id="yearly_satus_income" class="select-yearly-status-income" placeholder="CHF"></input>
+                    </div>
+                </template>
+            </div>
+
+            <button type="button" class="yearly-status-add-button" onclick="addYearlyStatus()">Hinzufügen</button>
+            <button type="button" class="yearly-status-remove-button" onclick="removeYearlyStatus()">Entfernen</button>
+            
+            <!-- Erziehungsgutschriften -->
+
+            <div id="childcare_credits_data">
+                <h4>
+                    Erziehungsgutschriften:
+                    <span class="info-icon" tabindex="0" onclick="toggleInfoBox(this)">i</span>
+                    <span class="info-box">
+                        Geben Sie an ob Sie Kinder bzw. Erziehungsberechtigt waren und wenn ja, die Anzahl Kinder. Danach können Sie den Jahrgang jedes Kindes eingeben, und für welches Sie erziehungsberechtigt waren. Wenn Sie nicht immer für ein Kind erziehungsberechtigt waren, bitte in Jahrzahlen (2005) die Anfang bis End Jahre angeben.
+                    </span>
+                </h4>
+
+                <div id="childcare_credit">
+                    <label for="has_children" class="has_children">Haben Sie Kinder?</label>
+                    <select name="return-has-children" id="has_children" class="has-children" onchange="toggleChildcareCredits(this)">
+                        <option value="Nein">Nein</option>
+                        <option value="Ja">Ja</option>
+                    </select>
+                </div>
+
+                <div class="childcare-credits" id=children_count_block style="display: none;">
+                    <label for="amount_children_childcare_credits" class="num-children-childcare-credits">Anzahl Kinder</label>
+                    <select name="return-amount-children-childcare-credits" class="select-num-children-childcare-credits" id="amount_children_childcare_credits" onchange="createChildcareVintage(this); createChildcareResponsibilityTemplates(this)"></select>         
+                </div>
+
+                <br>
+
+                <div id="child_year_block" style="display: none;">
+                    <template class="child-template">
+                        <div class="childcare-entry" >
+                            <label></label>
+                            <select name="return-vintage-children[]" class="vintage-children"></select><br>
                         </div>
+                    </template>
+                </div>
+                </br>   
+                <div id="block_erziehunsgberechtigt">
+                    <template class="erziehungsberechtigt-template">
+                        <div class="erziehungsberechtigt-template-wrapper">
 
-                        <div class="status-erziehungsberechtigt-standard" style="display: none;">
-                            <label class="status-erziehungsberechtigt">Wer war Erziehungsberechtigt:</label>
-                            <select name="return-status-erziehungsberechtigt[]" class="status-erziehungsberechtigt">
-                                <option value="Gemeinsam">Gemeinsam</option>
-                                <option value="Alleine">Alleine</option>
-                            </select>
-                        </div>
-
-                        <div class="erziehungsberechtigt-standard">
-                            <div class="duration-erziehunsgberechtigt-standard" style="display: none;">
-                                <label class="erziehungsberechtigt-start-age">Von Jahr:</label>
-                                <select class="select-erziehungsberechtigt-start-age"></select>
-
-                                <label class="erziehungsberechtigt-end-age">Bis Jahr:</slabel>
-                                <select class="select-erziehungsberechtigt-end-age"></select>
-
-                                <label class="container-erziehungsberechtigt-status">Status:</label>
-                                <select class="select-container-erziehungsberechtigt-status">
-                                    <option value="Gemeinsam">Gemeinsam</option>
-                                    <option value="Alleine">Alleine</option>
-                                    <option value="Nicht erziehungsberechtigt">Nicht erziehungsberechtigt</option>
+                            <div class="search-erziehungsberechtigt">
+                                <label class="is-erziehungsberechtigt"></label>
+                                <select name="return-is-erziehungsberechtigt[]" class="is-erziehungsberechtigt" onchange=" toggleErziehungsberechtigt(this); toggleErziehungsberechtigtBeide(this)">
+                                    <option value="Ja">Ja</option>
+                                    <option value="Nein">Nein</option>
                                 </select>
                             </div>
-                           
-                            <template class="erziehungsberechtigt-standard-template">
-                                <div class="erziehunsgberechtigt-standard-temp">
-                                    <label class="erziehungsberechtigt-start-age-temp">Von Jahr:</label>
-                                    <select class="select-erziehungsberechtigt-start-age-temp"></select>
 
-                                    <label class="erziehungsberechtigt-end-age-temp">Bis Jahr:</label>
-                                    <select class="select-erziehungsberechtigt-end-age-temp"></select>
+                            <div class="status-erziehungsberechtigt-standard" style="display: none;">
+                                <label class="status-erziehungsberechtigt">Wer war Erziehungsberechtigt:</label>
+                                <select name="return-status-erziehungsberechtigt[]" class="status-erziehungsberechtigt">
+                                    <option value="Gemeinsam">Gemeinsam</option>
+                                    <option value="Alleine">Alleine</option>
+                                </select>
+                            </div>
 
-                                    <label class="erziehungsberechtigt-status-temp">Status:</label>
-                                    <select class="select-erziehungsberechtigt-status-temp">
+                            <div class="erziehungsberechtigt-standard">
+                                <div class="duration-erziehunsgberechtigt-standard" style="display: none;">
+                                    <label class="erziehungsberechtigt-start-age">Von Jahr:</label>
+                                    <select class="select-erziehungsberechtigt-start-age"></select>
+
+                                    <label class="erziehungsberechtigt-end-age">Bis Jahr:</slabel>
+                                    <select class="select-erziehungsberechtigt-end-age"></select>
+
+                                    <label class="container-erziehungsberechtigt-status">Status:</label>
+                                    <select class="select-container-erziehungsberechtigt-status">
                                         <option value="Gemeinsam">Gemeinsam</option>
                                         <option value="Alleine">Alleine</option>
                                         <option value="Nicht erziehungsberechtigt">Nicht erziehungsberechtigt</option>
                                     </select>
                                 </div>
-                            </template>
+                            
+                                <template class="erziehungsberechtigt-standard-template">
+                                    <div class="erziehunsgberechtigt-standard-temp">
+                                        <label class="erziehungsberechtigt-start-age-temp">Von Jahr:</label>
+                                        <select class="select-erziehungsberechtigt-start-age-temp"></select>
+
+                                        <label class="erziehungsberechtigt-end-age-temp">Bis Jahr:</label>
+                                        <select class="select-erziehungsberechtigt-end-age-temp"></select>
+
+                                        <label class="erziehungsberechtigt-status-temp">Status:</label>
+                                        <select class="select-erziehungsberechtigt-status-temp">
+                                            <option value="Gemeinsam">Gemeinsam</option>
+                                            <option value="Alleine">Alleine</option>
+                                            <option value="Nicht erziehungsberechtigt">Nicht erziehungsberechtigt</option>
+                                        </select>
+                                    </div>
+                                </template>
+                            </div>
+                            <button type="button" class="erziehungsberechtigt-add-button" style="display: none;" onclick="addErziehungsberechtigt(this)">Hinzufügen</button>
+                            <button type="button" class="erziehungsberechtigt-remove-button" style="display: none;" onclick="removeErziehungsberechtigt(this)">Entfernen</button>
                         </div>
-                        <button type="button" class="erziehungsberechtigt-add-button" style="display: none;" onclick="addErziehungsberechtigt(this)">Hinzufügen</button>
-                        <button type="button" class="erziehungsberechtigt-remove-button" style="display: none;" onclick="removeErziehungsberechtigt(this)">Entfernen</button>
-                    </div>
-                </template>
+                    </template>
+                </div>
             </div>
-        </div>
 
-        <!-- Betreuungsgutschriften -->
+            <!-- Betreuungsgutschriften -->
 
-        <div id="betreuungsgutschriften_data">
-            <h4>Betreuungsgutschriften:</h4>
-            <div class="betreuungsgutschriften">
-                <label for="has_betreuungsgutschriften" class="has-betreuungsgutschriften">Haben Sie Anspruch auf Betreuungsgutschriften:</label>
-                <select name="return-has-betreuungsgutschriften" class="has-betreuungsgutschriften" id="has_betreuungsgutschriften" onchange="toggleBetreuungsgutschriften(this)">
-                    <option value="Nein">Nein</option>
-                    <option value="Ja">Ja</option>
-                </select>
-                <br>
-                <div id="betreuungsgutschriften_entries">
-                    <div id="betreuungsgutschriften_container" style="display: none;">
-                        <label class="start-year-betreuungsgutschriften">Von Jahr:</label>
-                        <select name="return-start-year-betreuungsgutschriften[]" class="select-start-year-betreuungsgutschriften"></select>
+            <div id="betreuungsgutschriften_data">
+                <h4>
+                    Betreuungsgutschriften:
+                    <span class="info-icon" tabindex="0" onclick="toggleInfoBox(this)">i</span>
+                    <span class="info-box">
+                        Geben Sie an, ob Sie Anspruch auf Betreuungsgutschriften hatten. Wenn Ja, alle Anfangs- bis Endjahre angeben.
+                    </span>
+                </h4>
 
-                        <label class="end-year-betreuungsgutschriften">Bis Jahr:</label>
-                        <select name="return-end-year-betreuungsgutschriften[]" class="select-end-year-betreuungsgutschriften"></select>
-                    </div>
-
-                    <template id="betreuungsgutschriften_container_template">
-                        <div class="betreuungsgutschrfiten-container-template">
+                <div class="betreuungsgutschriften">
+                    <label for="has_betreuungsgutschriften" class="has-betreuungsgutschriften">Haben Sie Anspruch auf Betreuungsgutschriften:</label>
+                    <select name="return-has-betreuungsgutschriften" class="has-betreuungsgutschriften" id="has_betreuungsgutschriften" onchange="toggleBetreuungsgutschriften(this)">
+                        <option value="Nein">Nein</option>
+                        <option value="Ja">Ja</option>
+                    </select>
+                    <br>
+                    <div id="betreuungsgutschriften_entries">
+                        <div class="betreuungsgutschriften-container" id="betreuungsgutschriften_container" style="display: none;">
                             <label class="start-year-betreuungsgutschriften">Von Jahr:</label>
-                            <select name="return-start-year-betreuungsgutschriften[]" class="select-start-year-betreuungsgutschriften-temp"></select>
+                            <select name="return-start-year-betreuungsgutschriften[]" class="select-start-year-betreuungsgutschriften"></select>
 
                             <label class="end-year-betreuungsgutschriften">Bis Jahr:</label>
-                            <select name="return-end-year-betreuungsgutschriften[]" class="select-end-year-betreuungsgutschriften-temp"></select>
+                            <select name="return-end-year-betreuungsgutschriften[]" class="select-end-year-betreuungsgutschriften"></select>
                         </div>
-                    </template>
-                    <button type="button" id="betreuungsgutschriften_add_button" style="display: none;" onclick="addBetreuungsgutschriften(this)">Hinzufügen</button> 
-                    <button type="button" id="betreuungsgutschriften_remove_button" style="display: none;" onclick="removeBetreuungsgutschriften(this)">Entfernen</button>
+
+                        <template id="betreuungsgutschriften_container_template">
+                            <div class="betreuungsgutschrfiten-container-template">
+                                <label class="start-year-betreuungsgutschriften">Von Jahr:</label>
+                                <select name="return-start-year-betreuungsgutschriften[]" class="select-start-year-betreuungsgutschriften-temp"></select>
+
+                                <label class="end-year-betreuungsgutschriften">Bis Jahr:</label>
+                                <select name="return-end-year-betreuungsgutschriften[]" class="select-end-year-betreuungsgutschriften-temp"></select>
+                            </div>
+                        </template>
+                        <button type="button" id="betreuungsgutschriften_add_button" style="display: none;" onclick="addBetreuungsgutschriften(this)">Hinzufügen</button> 
+                        <button type="button" id="betreuungsgutschriften_remove_button" style="display: none;" onclick="removeBetreuungsgutschriften(this)">Entfernen</button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Plafonierte Rente -->
+            <!-- Plafonierte Rente -->
 
-        <div id="plafonierte_rente">
-            <h4>Verheiratet:</h4>
-            <div class="rente-plafoniert">
-                <label for="" class="is-married">Sind Sie aktuell verheiratet:</label>
-                <select name="return-is-married" id="is_married" class="is-married">
-                    <option value="Ja">Ja</option>
-                    <option value="Nein">Nein</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- BVG Contribs -->
-
-        <div id="bvg_contributions">
-            <h4>BVG Beiträge:</h4>
-            <div id="bvg_contrib">
-                <div id="bvg_contrib_angestellt">
-                    <div id="bvg_contrib_angestellt_container" style="display: none;">
-                        <label class="select-bvg-contrib-angestellt">Hatten Sie spezielle BVG-Konditionen in der Angestellten verhältnis</label>
-                        <select name="return-select-bvg-contrib-angestellt" class="select-bvg-contrib-angestellt" onchange="toggleBvgcontribangestellt(this)">
-                            <option value="Nein">Nein</option>
-                            <option value="Ja">Ja</option>
-                        </select>
-                    </div>
-                    <div id="bvg_contrib_angestellt_inputs" style="display: none;">
-                        <label class="bvg-contrib-angestellt-start-age" >Von Jahr:</label>
-                        <select name="return-bvg-contrib-angestellt-start-age[]" class="select-bvg-contrib-angestellt-start-age"></select>
-
-                        <label class="bvg-contrib-angestellt-end-age">Bis Jahr:</label>
-                        <select name="return-bvg-contrib-angestellt-end-age[]" class="select-bvg-contrib-angestellt-end-age"></select>
-
-                        <label class="bvg-contrib-angestellt-min-vers-income">Was war Ihr mininmal versichertes Einkommen:</label>
-                        <input type="number" name="return-bvg-contrib-angestellt-min-vers-income[]" class="select-bvg-contrib-angestellt-inputs" placeholder="CHF">
-
-                        <label class="bvg-contrib-angestellt-max-vers-income">Was war Ihr maximal versichertes Einkommen:</label>
-                        <input type="number" name="return-select-bvg-contrib-angestellt-max-vers-income[]" class="select-bvg-contrib-angestellt-max-vers-income" placeholder="CHF">
-
-                        <label class="bvg-contrib-angestellt-koordinationsabzug">Was war Ihr Koordinationsabzug</label>
-                        <input type="number" name="return-bvg-contrib-angestellt-koordinationsabzug[]" class="select-bvg-contrib-angestellt-koordinationsabzug" placeholder="CHF">
-                    </div>
-
-                    <template id="bvg_contrib_angestellt_template">
-                        <div class="bvg-contrib-angestellt-template">
-                            <label class="bvg-contrib-angestellt-start-age-temp">Von Jahr:</label>
-                            <select name="return-bvg-contrib-angestellt-start-age[]" class="select-bvg-contrib-angestellt-start-age-temp"></select>
-
-                            <label class="bvg-contrib-angestellt-end-age-temp">Bis Jahr:</label>
-                            <select name="return-bvg-contrib-angestellt-end-age[]" class="select-bvg-contrib-angestellt-end-age-temp"></select>
-
-                            <label class="bvg-contrib-angestellt-min-vers-income-temp">Was war Ihr mininmal versichertes Einkommen:</label>
-                            <input type="number" name="return-bvg-contrib-angestellt-min-vers-income[]" class="select-bvg-contrib-angestellt-inputs-temp" placeholder="CHF">
-
-                            <label class="bvg-contrib-angestellt-max-vers-income-temp">Was war Ihr maximal versichertes Einkommen:</label>
-                            <input type="number" name="return-select-bvg-contrib-angestellt-max-vers-income[]" class="select-bvg-contrib-angestellt-max-vers-income-temp" placeholder="CHF">
-
-                            <label class="bvg-contrib-angestellt-koordinationsabzug-temp">Was war Ihr Koordinationsabzug</label>
-                            <input type="number" name="return-bvg-contrib-angestellt-koordinationsabzug[]" class="select-bvg-contrib-angestellt-koordinationsabzug-temp" placeholder="CHF">
-                        </div>
-                    </template>
-                    <button id=add_bvg_contrib_angest style="display: none;" type="button" onclick="addBvgcontribangestellt()">Hinzufügen</button>
-                    <button id=remove_bvg_contrib_angest style="display: none;" type="button" onclick="removeBvgcontribangestellt()">Entfernen</button>
+            <div id="plafonierte_rente">
+                <h4>
+                    Verheiratet:
+                    <span class="info-icon" tabindex="0" onclick="toggleInfoBox(this)">i</span>
+                    <span class="info-box">
+                        Sind Sie zum jetzigen Zeitpunkt verheiratet? Diese Information braucht es um allfällig die Rente zu plafonieren.
+                    </span>
+                </h4>
+                <div class="rente-plafoniert">
+                    <label for="" class="is-married">Sind Sie aktuell verheiratet:</label>
+                    <select name="return-is-married" id="is_married" class="is-married">
+                        <option value="Ja">Ja</option>
+                        <option value="Nein">Nein</option>
+                    </select>
                 </div>
+            </div>
 
-                <br>
+            <!-- BVG Contribs -->
 
-                <div id="bvg_contrib_selbständig">
-                    <div id="bvg_contrib_selbständig_container" style="display: none;">
-                        <label class="select-bvg-contrib-selbständig">Hatten Sie spezielle BVG-Beiträge in der Selbständigkeit bezahlt</label>
-                        <select name="return-select-bvg-contrib-selbständig" class="select-bvg-contrib-selbständig" onchange="toggleBvgcontribselbständig(this)">
-                            <option value="Nein">Nein</option>
-                            <option value="Ja">Ja</option>
-                        </select>
+            <div id="bvg_contributions">
+                <h4>
+                    BVG Beiträge:
+                    <span class="info-icon" tabindex="0" onclick="toggleInfoBox(this)">i</span>
+                    <span class="info-box">
+                        Geben Sie an, ob Sie nicht standardmässige BVG-Konditionen hatten. Standardmässig bedeutet, nicht gesetzlich festgelegter Koordinationsabzug / Minimal versichertes oder maximal versichertes Einkommen.
+                    </span>
+                </h4>
+                <div id="bvg_contrib">
+                    <div id="bvg_contrib_angestellt">
+                        <div id="bvg_contrib_angestellt_container" style="display: none;">
+                            <label class="select-bvg-contrib-angestellt">Hatten Sie spezielle BVG-Konditionen in der Angestellten verhältnis</label>
+                            <select name="return-select-bvg-contrib-angestellt" class="select-bvg-contrib-angestellt" onchange="toggleBvgcontribangestellt(this)">
+                                <option value="Nein">Nein</option>
+                                <option value="Ja">Ja</option>
+                            </select>
+                        </div>
+                        <div class="bvg-contrib-angestellt-inputs" id="bvg_contrib_angestellt_inputs" style="display: none;">
+                            <label class="bvg-contrib-angestellt-start-age" >Von Jahr:</label>
+                            <select name="return-bvg-contrib-angestellt-start-age[]" class="select-bvg-contrib-angestellt-start-age"></select>
+
+                            <label class="bvg-contrib-angestellt-end-age">Bis Jahr:</label>
+                            <select name="return-bvg-contrib-angestellt-end-age[]" class="select-bvg-contrib-angestellt-end-age"></select>
+
+                            <label class="bvg-contrib-angestellt-min-vers-income">Was war Ihr mininmal versichertes Einkommen:</label>
+                            <input type="number" name="return-bvg-contrib-angestellt-min-vers-income[]" class="select-bvg-contrib-angestellt-inputs" placeholder="CHF">
+
+                            <label class="bvg-contrib-angestellt-max-vers-income">Was war Ihr maximal versichertes Einkommen:</label>
+                            <input type="number" name="return-select-bvg-contrib-angestellt-max-vers-income[]" class="select-bvg-contrib-angestellt-max-vers-income" placeholder="CHF">
+
+                            <label class="bvg-contrib-angestellt-koordinationsabzug">Was war Ihr Koordinationsabzug</label>
+                            <input type="number" name="return-bvg-contrib-angestellt-koordinationsabzug[]" class="select-bvg-contrib-angestellt-koordinationsabzug" placeholder="CHF">
+                        </div>
+
+                        <template id="bvg_contrib_angestellt_template">
+                            <div class="bvg-contrib-angestellt-template">
+                                <label class="bvg-contrib-angestellt-start-age-temp">Von Jahr:</label>
+                                <select name="return-bvg-contrib-angestellt-start-age[]" class="select-bvg-contrib-angestellt-start-age-temp"></select>
+
+                                <label class="bvg-contrib-angestellt-end-age-temp">Bis Jahr:</label>
+                                <select name="return-bvg-contrib-angestellt-end-age[]" class="select-bvg-contrib-angestellt-end-age-temp"></select>
+
+                                <label class="bvg-contrib-angestellt-min-vers-income-temp">Was war Ihr mininmal versichertes Einkommen:</label>
+                                <input type="number" name="return-bvg-contrib-angestellt-min-vers-income[]" class="select-bvg-contrib-angestellt-inputs-temp" placeholder="CHF">
+
+                                <label class="bvg-contrib-angestellt-max-vers-income-temp">Was war Ihr maximal versichertes Einkommen:</label>
+                                <input type="number" name="return-select-bvg-contrib-angestellt-max-vers-income[]" class="select-bvg-contrib-angestellt-max-vers-income-temp" placeholder="CHF">
+
+                                <label class="bvg-contrib-angestellt-koordinationsabzug-temp">Was war Ihr Koordinationsabzug</label>
+                                <input type="number" name="return-bvg-contrib-angestellt-koordinationsabzug[]" class="select-bvg-contrib-angestellt-koordinationsabzug-temp" placeholder="CHF">
+                            </div>
+                        </template>
+                        <button id=add_bvg_contrib_angest style="display: none;" type="button" onclick="addBvgcontribangestellt()">Hinzufügen</button>
+                        <button id=remove_bvg_contrib_angest style="display: none;" type="button" onclick="removeBvgcontribangestellt()">Entfernen</button>
                     </div>
 
-                    <div id="bvg_contrib_selbständig_inputs" style="display: none;">
-                        <label class="bvg-contrib-selbständig-start-age" >Von Jahr:</label>
-                        <select name="return-bvg-contrib-selbständig-start-age[]" id="bvg_contrib_selbständig_start_age" class="select-bvg-contrib-selbständig-start-age"></select>
+                    <br>
 
-                        <label class="bvg-contrib-selbständig-end-age">Bis Jahr:</label>
-                        <select name="return-bvg-contrib-selbständig-end-age[]" id="bvg_contrib_selbständig_end_age" class="select-bvg-contrib-selbständig-end-age"></select>
+                    <div id="bvg_contrib_selbständig">
+                        <div id="bvg_contrib_selbständig_container" style="display: none;">
+                            <label class="select-bvg-contrib-selbständig">Hatten Sie spezielle BVG-Beiträge in der Selbständigkeit bezahlt</label>
+                            <select name="return-select-bvg-contrib-selbständig" class="select-bvg-contrib-selbständig" onchange="toggleBvgcontribselbständig(this)">
+                                <option value="Nein">Nein</option>
+                                <option value="Ja">Ja</option>
+                            </select>
+                        </div>
 
-                        <label class="bvg-contrib-selbständig-min-vers-income">Was war Ihr minimal versichertes Einkommen:</label>
-                        <input type="number" name="return-bvg-contrib-selbständig-min-vers-income[]" class="select-bvg-contrib-selbständig-min-vers-income" placeholder="CHF">
+                        <div class="bvg-contrib-selbständig-inputs" id="bvg_contrib_selbständig_inputs" style="display: none;">
+                            <label class="bvg-contrib-selbständig-start-age" >Von Jahr:</label>
+                            <select name="return-bvg-contrib-selbständig-start-age[]" id="bvg_contrib_selbständig_start_age" class="select-bvg-contrib-selbständig-start-age"></select>
 
-                        <label class="bvg-contrib-selbständig-max-vers-income">Was war Ihr maximal versichertes Einkommen:</label>
-                        <input type="number" name="return-bvg-contrib-selbständig-max-vers-income[]" class="select-bvg-contrib-selbständig-max-vers-income" placeholder="CHF">
-
-                        <label class="bvg-contrib-selbständig-koordinationsabzug">Was war Ihr Koordinationsabzug:</label>
-                        <input type="number" name="return-bvg-contrib-selbständig-koordinationsabzug[]" class="select-bvg-contrib-selbständig-koordinationsabzug" placeholder="CHF">
-
-                        <label class="bvg-contrib-selbständig-percentage">Was war Ihr Prozentsatz:</label>
-                        <input type="number" name="return-bvg-contrib-selbständig-percentage[]" class="select-bvg-contrib-selbständig-percentage" placeholder="CHF">
-                    </div>
-
-                    <template id="bvg_contrib_selbständig_template">
-                        <div class="bvg-contrib-selbständig-template">
-                            <label class="bvg-contrib-selbständig-start-age-temp">Von Jahr:</label>
-                            <select name="return-bvg-contrib-selbständig-start-age[]" class="select-bvg-contrib-selbständig-start-age-temp"></select>
-
-                            <label class="bvg-contrib-selbständig-end-age-temp">Bis Jahr:</label>
-                            <select name="return-bvg-contrib-selbständig-end-age[]" class="select-bvg-contrib-selbständig-end-age-temp"></select>
+                            <label class="bvg-contrib-selbständig-end-age">Bis Jahr:</label>
+                            <select name="return-bvg-contrib-selbständig-end-age[]" id="bvg_contrib_selbständig_end_age" class="select-bvg-contrib-selbständig-end-age"></select>
 
                             <label class="bvg-contrib-selbständig-min-vers-income">Was war Ihr minimal versichertes Einkommen:</label>
                             <input type="number" name="return-bvg-contrib-selbständig-min-vers-income[]" class="select-bvg-contrib-selbständig-min-vers-income" placeholder="CHF">
@@ -382,135 +416,186 @@
                             <label class="bvg-contrib-selbständig-percentage">Was war Ihr Prozentsatz:</label>
                             <input type="number" name="return-bvg-contrib-selbständig-percentage[]" class="select-bvg-contrib-selbständig-percentage" placeholder="CHF">
                         </div>
-                    </template>
+
+                        <template id="bvg_contrib_selbständig_template">
+                            <div class="bvg-contrib-selbständig-template">
+                                <label class="bvg-contrib-selbständig-start-age-temp">Von Jahr:</label>
+                                <select name="return-bvg-contrib-selbständig-start-age[]" class="select-bvg-contrib-selbständig-start-age-temp"></select>
+
+                                <label class="bvg-contrib-selbständig-end-age-temp">Bis Jahr:</label>
+                                <select name="return-bvg-contrib-selbständig-end-age[]" class="select-bvg-contrib-selbständig-end-age-temp"></select>
+
+                                <label class="bvg-contrib-selbständig-min-vers-income">Was war Ihr minimal versichertes Einkommen:</label>
+                                <input type="number" name="return-bvg-contrib-selbständig-min-vers-income[]" class="select-bvg-contrib-selbständig-min-vers-income" placeholder="CHF">
+
+                                <label class="bvg-contrib-selbständig-max-vers-income">Was war Ihr maximal versichertes Einkommen:</label>
+                                <input type="number" name="return-bvg-contrib-selbständig-max-vers-income[]" class="select-bvg-contrib-selbständig-max-vers-income" placeholder="CHF">
+
+                                <label class="bvg-contrib-selbständig-koordinationsabzug">Was war Ihr Koordinationsabzug:</label>
+                                <input type="number" name="return-bvg-contrib-selbständig-koordinationsabzug[]" class="select-bvg-contrib-selbständig-koordinationsabzug" placeholder="CHF">
+
+                                <label class="bvg-contrib-selbständig-percentage">Was war Ihr Prozentsatz:</label>
+                                <input type="number" name="return-bvg-contrib-selbständig-percentage[]" class="select-bvg-contrib-selbständig-percentage" placeholder="CHF">
+                            </div>
+                        </template>
+                    </div>
+                    <button id="add_bvg_contrib_selbst" type="button" style="display: none;" onclick="addBvgcontribselbständig()">Hinzufügen</button>
+                    <button id="remove_bvg_contrib_selbst" type="button" style="display: none;" onclick="removeBvgcontribselbständig()">Entfernen</button>
                 </div>
-                <button id="add_bvg_contrib_selbst" type="button" style="display: none;" onclick="addBvgcontribselbständig()">Hinzufügen</button>
-                <button id="remove_bvg_contrib_selbst" type="button" style="display: none;" onclick="removeBvgcontribselbständig()">Entfernen</button>
             </div>
-        </div>
 
-        <!-- BVG Zinsen -->
+            <!-- BVG Zinsen -->
 
-        <div id="bvg_yield">
-            <h4>BVG Zins:</h4>
-            <div class="bvg-yield">
-                <label for="bvg_yield_start_age" class="bvg-yield-start-age">Von welchem Alter:</label>
-                <select name="return-bvg-yield-start-age[]" id="bvg_yield_start_age" class="bvg-yield-start-age"></select>
+            <div id="bvg_yield">
+                <h4>
+                    BVG Zins:
+                    <span class="info-icon" tabindex="0" onclick="toggleInfoBox(this)">i</span>
+                    <span class="info-box">
+                        Geben Sie die jährlichen Zinsen, welche Ihre Pensionskasse Ihnen jährlich ausgezahlt an. Desto genauer Sie diese Jahre angeben, desto genauer wird Ihr Pensionskassenvermögen und somit Ihre Rente.
+                    </span>
+                </h4>
+                <div class="bvg-yield">
+                    <label for="bvg_yield_start_age" class="bvg-yield-start-age">Von welchem Alter:</label>
+                    <select name="return-bvg-yield-start-age[]" id="bvg_yield_start_age" class="bvg-yield-start-age"></select>
 
-                <label for="bvg_yield_end_age" class="bvg-yield-end-age">Bis zu welchem Alter:</label>
-                <select name="return-bvg-yield-end-age[]" id="bvg_yield_end_age" class="bvg-yield-end-age"></select>
+                    <label for="bvg_yield_end_age" class="bvg-yield-end-age">Bis zu welchem Alter:</label>
+                    <select name="return-bvg-yield-end-age[]" id="bvg_yield_end_age" class="bvg-yield-end-age"></select>
 
-                <label for="bvg_yield_yield" class="bvg-yield-yield">Zinssatz:</label>
-                <select name="return-bvg-yield-yield[]" id="bvg_yield_yield" class="bvg-yield-yield"></select>
-            </div>
-            <template id="bvg_yield_template">
-                <div class="bvg-yield-template">
-                    <label for="select_bvg_yield_start_age" class="bvg-yield-start-age">Von welchem Alter:</label>
-                    <select name="return-bvg-yield-start-age[]" id="select_bvg_yield_start_age" class="bvg-yield-start-age"></select>
-
-                    <label for="select_bvg_yield_end_age" class="bvg-yield-end-age">Bis zu welchem Alter:</label>
-                    <select name="return-bvg-yield-end-age[]" id="select_bvg_yield_end_age" class="bvg-yield-end-age"></select>
-
-                    <label for="select_bvg_yield_yield" class="bvg-yield-yield">Zinssatz:</label>
-                    <select name="return-bvg-yield-yield[]" id="select_bvg_yield_yield" class="bvg-yield-yield"></select>
+                    <label for="bvg_yield_yield" class="bvg-yield-yield">Zinssatz:</label>
+                    <select name="return-bvg-yield-yield[]" id="bvg_yield_yield" class="bvg-yield-yield"></select>
                 </div>
-            </template>
-        </div>
+                <template id="bvg_yield_template">
+                    <div class="bvg-yield-template">
+                        <label for="select_bvg_yield_start_age" class="bvg-yield-start-age">Von welchem Alter:</label>
+                        <select name="return-bvg-yield-start-age[]" id="select_bvg_yield_start_age" class="bvg-yield-start-age"></select>
 
-        <button type="button" onclick="addYield()">Hinzufügen</button>
-        <button type="button" onclick="removeYield()">Entfernen</button>
+                        <label for="select_bvg_yield_end_age" class="bvg-yield-end-age">Bis zu welchem Alter:</label>
+                        <select name="return-bvg-yield-end-age[]" id="select_bvg_yield_end_age" class="bvg-yield-end-age"></select>
 
-
-        <!-- BVG Deckungsgrad -->
-
-        <div id="bvg_contrib_share">
-            <h4>BVG Beitragsabgabe:</h4>
-            <div class="bvg-contrib-share">
-                <label for="bvg_contrib_share_start_age" class="bvg-contrib-share-start-age">Von welchem Alter:</label>
-                <select name="return-bvg-contrib-share-start-age[]" id="bvg_contrib_share_start_age" class="bvg-contrib-share-start-age"></select>
-
-                <label for="bvg_contrib_share_end_age" class="bvg-contrib-share-end-age">Bis zu welchem Alter:</label>
-                <select name="return-bvg-contrib-share-end-age[]" id="bvg_contrib_share_end_age" class="bvg-contrib-share-end-age"></select>
-
-                <label for="bvg_contrib_share_percentage" class="bvg-contrib-share-percentage">Prozentsatz:</label>
-                <select name="return-bvg-contrib-share-percentage[]" id="bvg_contrib_share_percentage" class="bvg-contrib-share-percentage"></select>
+                        <label for="select_bvg_yield_yield" class="bvg-yield-yield">Zinssatz:</label>
+                        <select name="return-bvg-yield-yield[]" id="select_bvg_yield_yield" class="bvg-yield-yield"></select>
+                    </div>
+                </template>
             </div>
-            <template id="bvg_contrib_share_template">
-                <div class="bvg-contrib-share-template">
-                    <label for="select_bvg_contrib_share_start_age" class="bvg-contrib-share-start-age">Von welchem Alter:</label>
-                    <select name="return-bvg-contrib-share-start-age[]" id="select_bvg_contrib_share_start_age" class="bvg-contrib-share-start-age"></select>
 
-                    <label for="select_bvg_contrib_share_end_age" class="bvg-contrib-share-end-age">Bis zu welchem Alter:</label>
-                    <select name="return-bvg-contrib-share-end-age[]" id="select_bvg_contrib_share_end_age" class="bvg-contrib-share-end-age"></select>
+            <button type="button" onclick="addYield()">Hinzufügen</button>
+            <button type="button" onclick="removeYield()">Entfernen</button>
 
-                    <label for="select_bvg_contrib_share_percentage" class="bvg-contrib-share-percentage">Prozentsatz:</label>
-                    <select name="return-bvg-contrib-share-percentage[]" id="select_bvg_contrib_share_percentage" class="bvg-contrib-share-percentage"></select>
+
+            <!-- BVG Deckungsgrad -->
+
+            <div id="bvg_contrib_share">
+                <h4>
+                    BVG Beitragsabgabe:
+                    <span class="info-icon" tabindex="0" onclick="toggleInfoBox(this)">i</span>
+                    <span class="info-box">
+                        Falls Sie spezielle BVG-Abgaben hatten (bspw. 100% Arbeitnehmer - 0% selbst) geben Sie diese an, und wie hoch Ihre Abgabe war, ausserhalb des gesetzlichen Standards von 50%.
+                    </span>
+                </h4>
+                <div class="bvg-contrib-share">
+                    <label for="bvg_contrib_share_start_age" class="bvg-contrib-share-start-age">Von welchem Alter:</label>
+                    <select name="return-bvg-contrib-share-start-age[]" id="bvg_contrib_share_start_age" class="bvg-contrib-share-start-age"></select>
+
+                    <label for="bvg_contrib_share_end_age" class="bvg-contrib-share-end-age">Bis zu welchem Alter:</label>
+                    <select name="return-bvg-contrib-share-end-age[]" id="bvg_contrib_share_end_age" class="bvg-contrib-share-end-age"></select>
+
+                    <label for="bvg_contrib_share_percentage" class="bvg-contrib-share-percentage">Prozentsatz:</label>
+                    <select name="return-bvg-contrib-share-percentage[]" id="bvg_contrib_share_percentage" class="bvg-contrib-share-percentage"></select>
                 </div>
-            </template>
-        </div>
+                <template id="bvg_contrib_share_template">
+                    <div class="bvg-contrib-share-template">
+                        <label for="select_bvg_contrib_share_start_age" class="bvg-contrib-share-start-age">Von welchem Alter:</label>
+                        <select name="return-bvg-contrib-share-start-age[]" id="select_bvg_contrib_share_start_age" class="bvg-contrib-share-start-age"></select>
 
-        <button type="button" onclick="addContribShare()">Hinzufügen</button>
-        <button type="button" onclick="removeContribShare()">Entfernen</button>
+                        <label for="select_bvg_contrib_share_end_age" class="bvg-contrib-share-end-age">Bis zu welchem Alter:</label>
+                        <select name="return-bvg-contrib-share-end-age[]" id="select_bvg_contrib_share_end_age" class="bvg-contrib-share-end-age"></select>
 
-
-        <!-- Nötiges Portfolio  -->
-
-        <div id="portfolio_necessary">
-            <h4>Portfolio 3. Säule:</h4>
-            <div class ="portfolio-necessary">
-                <label for="portfolio_necessary_input" class="portfolio-necessary-input">Wie hoch ist Ihr Vermögen in der 3. Säule:</label>
-                <input type="number" name="return-portfolio-necessary-input" id="portfolio_necessary_input" class="portfolio-necessary-input" placeholder="CHF"></input>
-            </div>
-        </div>
-
-        <!-- Wunsch Auszahlung -->
-
-        <div id="monthly_payment">
-            <h4>Monatliche Wunsch-Rente:</h4>
-            <div id="spec_monthly_payment">
-                <label class="spec-monthly-payment">Wie möchten Sie Ihre monatliche Rente simulieren?</label>
-                <select name="return-spec-monthly-payment" class="spec-monthly-payment" onchange="toggleMonthlyPayment(this)">
-                    <option value="100%">100% des letzten Einkommens</option>
-                    <option value="beliebig">Beliebiger Betrag</option>
-                </select>
+                        <label for="select_bvg_contrib_share_percentage" class="bvg-contrib-share-percentage">Prozentsatz:</label>
+                        <select name="return-bvg-contrib-share-percentage[]" id="select_bvg_contrib_share_percentage" class="bvg-contrib-share-percentage"></select>
+                    </div>
+                </template>
             </div>
 
-            <div id="monthly_pension" style="display: none;">
-                <label class="monthly-pension">Wie hoch sollte Ihre monatliche Rente sein?</label>
-                <input type="number" name="return-monthly-pension" class="select-monthly-pension" placeholder="CHF"></input>
+            <button type="button" onclick="addContribShare()">Hinzufügen</button>
+            <button type="button" onclick="removeContribShare()">Entfernen</button>
+
+
+            <!-- Nötiges Portfolio  -->
+
+            <div id="portfolio_necessary">
+                <h4>
+                    Portfolio 3. Säule:
+                    <span class="info-icon" tabindex="0" onclick="toggleInfoBox(this)">i</span>
+                    <span class="info-box">
+                        Wie hoch ist Ihr Vermögen in der 3. Säule, dass sie Privat angesparrt haben bereits zum jetzigen Zeitpunkt?
+                    </span>
+                </h4>
+                <div class ="portfolio-necessary">
+                    <label for="portfolio_necessary_input" class="portfolio-necessary-input">Wie hoch ist Ihr Vermögen in der 3. Säule:</label>
+                    <input type="number" name="return-portfolio-necessary-input" id="portfolio_necessary_input" class="portfolio-necessary-input" placeholder="CHF"></input>
+                </div>
             </div>
-        </div>
 
-        <!-- Sparrate -->
+            <!-- Wunsch Auszahlung -->
 
-        <div id="saving_rate">
-            <h4>Zeitdauer für Sparrate-Simulation</h4>
-            <div class="saving-rate">
-                <label for="saving_rate_input" class="saving-rate-input">Möchten Sie die Sparrate über die gesamte Volljährigkeit simulieren?</label>
-                <select name="return-saving-rate-input" id="saving_rate_input" class="saving_rate_input" onchange="toggleSavingRate(this)">
-                    <option value="Ja">Ja</option>
-                    <option value="Nein">Nein</option>
-                </select>
+            <div id="monthly_payment">
+                <h4>
+                    Monatliche Wunsch-Rente:
+                    <span class="info-icon" tabindex="0" onclick="toggleInfoBox(this)">i</span>
+                    <span class="info-box">
+                        Was ist Ihre gewünschte monatliche Rente. Möchten Sie 100% Ihres letzten Einkommens haben, um einen nahtlosen Übergang zu simulieren, oder eine selber definierte monatliche Rente.
+                    </span>
+                </h4>
+                <div id="spec_monthly_payment">
+                    <label class="spec-monthly-payment">Wie möchten Sie Ihre monatliche Rente simulieren?</label>
+                    <select name="return-spec-monthly-payment" class="spec-monthly-payment" onchange="toggleMonthlyPayment(this)">
+                        <option value="100%">100% des letzten Einkommens</option>
+                        <option value="beliebig">Beliebiger Betrag</option>
+                    </select>
+                </div>
+
+                <div id="monthly_pension" style="display: none;">
+                    <label class="monthly-pension">Wie hoch sollte Ihre monatliche Rente sein?</label>
+                    <input type="number" name="return-monthly-pension" class="select-monthly-pension" placeholder="CHF"></input>
+                </div>
             </div>
 
-            <div id="saving_rate_range" class="saving-rate-range" style="display: none;">
-                <label for="saving_rate_start_age" class="saving-rate-start-age">Von Alter:</label>
-                <select name="return-saving-rate-start-age" id="saving_rate_start_age" class="saving-rate-start-age"></select>
+            <!-- Sparrate -->
 
-                <label for="saving_rate_end_age" class="saving-rate-end-age">Bis Alter:</label>
-                <select name="return-saving-rate-end-age" id="saving_rate_end_age" class="saving-rate-end-age"></select>     
+            <div id="saving_rate">
+                <h4>
+                    Zeitdauer für Sparrate-Simulation:
+                    <span class="info-icon" tabindex="0" onclick="toggleInfoBox(this)">i</span>
+                    <span class="info-box">
+                        Über wie viele Jahre möchten Sie Ihre Sparrate simulieren. Gesamte Volljährigkeit bedeutet von 18 bis 65. Ansonsten individueller Zeitrahmen (bspw. erst ab 30 fürs Alters sparen)
+                    </span>
+                </h4>
+                <div class="saving-rate">
+                    <label for="saving_rate_input" class="saving-rate-input">Möchten Sie die Sparrate über die gesamte Volljährigkeit simulieren?</label>
+                    <select name="return-saving-rate-input" id="saving_rate_input" class="saving_rate_input" onchange="toggleSavingRate(this)">
+                        <option value="Ja">Ja</option>
+                        <option value="Nein">Nein</option>
+                    </select>
+                </div>
+
+                <div id="saving_rate_range" class="saving-rate-range" style="display: none;">
+                    <label for="saving_rate_start_age" class="saving-rate-start-age">Von Alter:</label>
+                    <select name="return-saving-rate-start-age" id="saving_rate_start_age" class="saving-rate-start-age"></select>
+
+                    <label for="saving_rate_end_age" class="saving-rate-end-age">Bis Alter:</label>
+                    <select name="return-saving-rate-end-age" id="saving_rate_end_age" class="saving-rate-end-age"></select>     
+                </div>
             </div>
-        </div>
 
-        <br>
-        <button type="submit">Berechnen</button>
-        <button type="reset">Zurücksetzen</button>
-    </form>
-
-    <!-- OUTPUT VON PYTHON SKRIPT (RENTE AHV, BVG, 3. Säule Daten, Sparraten)-->
+            <br>
+            <button type="submit">Berechnen</button>
+            <button type="reset">Zurücksetzen</button>
+        </form>
+    </div>
 
     <div id="results_section"></div>
 
+</main>
 <script src="{{ url_for('static', filename='js/altersvorsorge.js') }}"></script>
-</body>
-</html>
+
+{% endblock %}
